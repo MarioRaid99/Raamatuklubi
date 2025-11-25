@@ -1,0 +1,24 @@
+swagger: '2.0'
+info:
+    title: RaamatuKlubi
+    version: 1.0.0
+    description: Hinda raamatuid
+paths:
+    /books:
+        get:
+            tags:
+                - books
+            responses:
+                '200':
+                    description: Returns a list of Books
+                    schema:
+                        type: array
+                        items:
+                            type: string
+                    examples:
+                        application/json:
+                            - Kalevipoeg
+                            - Harry Potter
+                            - Kriminoloogia
+            summary: Get all the <Books> in API
+            description: Return all Films that are registered in API

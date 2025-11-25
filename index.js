@@ -8,8 +8,8 @@ const app = express();
 const swaggerUI = require('swagger-ui-express');
 const yamljs = require('yamljs');
 
-//const swaggerDocument = yamljs.load('./docs/swagger.yaml')
-const swaggerDocument = require('./docs/swagger.yaml')
+const swaggerDocument = yamljs.load('./docs/swagger.yaml')
+//const swaggerDocument = require('./docs/swagger.yaml')
 
 app.get('/books', (req, res) => {
     res.send(["Kalevipoeg", "Harry Potter", "Kriminoloogia"])
