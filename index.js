@@ -11,6 +11,13 @@ const yamljs = require('yamljs');
 //const swaggerDocument = yamljs.load('./docs/swagger.yaml')
 const swaggerDocument = require('./docs/swagger.yaml')
 
+app.get('/books', (req, res) => {
+    res.send(["Kalevipoeg", "Harry Potter", "Kriminoloogia"])
+})
+
+
+
+
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 
 app.listen(port, () =>{
