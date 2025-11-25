@@ -13,6 +13,6 @@ const swaggerDocument = require('./docs/swagger.yaml')
 
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 
-app.listen(post, () =>{
-    console.log('API on aadressil: http://localhost:${port}')
+app.listen(port, () =>{
+    console.log(`API on aadressil: http://localhost:${port}`)
 })
