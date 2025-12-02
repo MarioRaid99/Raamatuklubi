@@ -19,6 +19,29 @@ async (req, res) => {
     return res.status(200).send(book)
 }
 
+exports.create =
+async (req, res) => {
+    if (
+        !req.body.Name ||
+        !req.body.Description ||
+        !req.body.Pages ||
+        !req.body.RealeaseYear ||
+        !req.body.Language
+    ){
+        return res.status(400).send({error:'Missing some parameter, please review your request data!'})
+    }
+    const newBook = {
+        Name: req.body.Name,
+        Description: req.body.Description,
+        Pages: req.body.Pages,
+        ReleaseYear: req.body.RealeaseYear,
+        Language: req.body.Language,
+    }
+    const createdBook = await db.books.create(newBook);
+    return res
+    .location(`${Utilities.getBaseURL(req)}/books/${createdBook.BookID}`).sendStatus(201);
+}
+
 const getBook =
 async (req, res) => {
     const idNumber = req.params.BookID

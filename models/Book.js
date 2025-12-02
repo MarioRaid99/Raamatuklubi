@@ -18,7 +18,6 @@ module.exports = (sequelize, DataTypes) => {
             },
             UserScore: {
                 type: DataTypes.DECIMAL,
-                allowNull: false
             },
             Pages: {
                 type: DataTypes.INTEGER,

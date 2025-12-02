@@ -22,42 +22,71 @@ paths:
                             - Kriminoloogia
             summary: Get all the <Books> in API
             description: Return all Films that are registered in API
+        post:
+            parameters:
+                -
+                    name: body
+                    description: The <Book> that is to be created.
+                    schema:
+                        $ref: '#/definitions/new-Book'
+                    in: body
+                    required: true
+            responses:
+                '201':
+                    description: Send 201 when <Book> is successfully added to the database.
+                    schema:
+                        $ref: '#/definitions/new-Book'
+                '400':
+                    description: 'Missing some parameter, please review your request data!'
+                    schema:
+                        $ref: '#/definitions/error'
+            summary: Create a new <Book> into the app
+            description: 'Create a new <Book> instance with its required details, for further usage.'
     /books(BookID):
         get:
             tags:
                 - Books
             responses:
                 '200':
-                    description: Returns all details of given <Book>
-                    schema:
-                        type: array
-                        items:
-                            type: string
-                    examples:
-                        application/json:
-                            BookID: 5e568d9e-cec3-11f0-b43f-901b0eec5991
-                            Name: TestBook
-                            Description: For testing purposes
-                            UserScore: 5
-                            Pages: 10
-                            ReleaseYear: 1999
-                            Language: Estonglish
-                            createdAt: '2025-12-01T16:37:24.000Z'
-                            updatedAt: '2025-12-01T16:37:24.000Z'
-                '404':
-                    description: Returns error when <Book> not found
-                    schema:
-                        $ref: '#/definitions/error'
+                    description: Returns all details of a given <Book>
             operationId: BookID
-            summary: Get full details of a <Book>
             description: Will return all details of a given <Book> based on BookID given.
 definitions:
+    new-Book:
+        title: Root Type for new-Book
+        description: ''
+        required:
+            - Description
+            - Language
+            - Name
+            - Pages
+            - RealeaseYear
+        type: object
+        properties:
+            Name:
+                type: string
+            Description:
+                type: string
+            Pages:
+                format: int32
+                type: integer
+            RealeaseYear:
+                format: int32
+                type: integer
+            Language:
+                type: string
+        example:
+            Name: NewBookName
+            Description: NewBookDescription
+            Pages: 125
+            RealeaseYear: 1999
+            Language: NewMovieLanguage
     error:
         title: Root Type for error
-        description: ''
+        description: This data type is currently a complex object
         type: object
         properties:
             error:
                 type: string
         example:
-            error: Error Message
+            error: Error message
