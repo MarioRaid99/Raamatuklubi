@@ -31,6 +31,7 @@ async (req, res) => {
         return res.status(400).send({error:'Missing some parameter, please review your request data!'})
     }
     const newBook = {
+        BookID: UUID.v7(),
         Name: req.body.Name,
         Description: req.body.Description,
         Pages: req.body.Pages,
