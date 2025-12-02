@@ -1,5 +1,5 @@
 #Raamatuklubi-api
-api ja vebisait raamatute arvustamise jms jaoks (TARge24)
+Api ja vebisait raamatute arvustamise jms jaoks (TARge24)
 -------------
 # How to run this app
 
