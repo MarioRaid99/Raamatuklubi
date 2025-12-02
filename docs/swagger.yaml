@@ -53,6 +53,34 @@ paths:
                     description: Returns all details of a given <Book>
             operationId: BookID
             description: Will return all details of a given <Book> based on BookID given.
+        delete:
+            tags:
+                - Books
+            parameters:
+                -
+                    name: body
+                    description: id of <Book> to be removed from the app.
+                    schema:
+                        $ref: '#/definitions/delete-film'
+                    in: body
+                    required: true
+            responses:
+                '204':
+                    description: Returns "no content!" when removal of <Book> is successful.
+                    examples:
+                        application/json:
+                            -
+                                error: No content!
+                '404':
+                    description: 'Returns error, when <Book> with specified ID does not exist'
+                    schema:
+                        $ref: '#/definitions/error'
+                    examples:
+                        application/json:
+                            -
+                                error: id not found!
+            summary: Delete a <Book> from the app
+            description: 'Deletes and entry from the app, NEVER TOBE SEEN AGAIN.'
 definitions:
     new-Book:
         title: Root Type for new-Book
@@ -92,3 +120,12 @@ definitions:
                 type: string
         example:
             error: Error message
+    delete-film:
+        title: Root Type for delete-film
+        description: ''
+        type: object
+        properties:
+            BookID:
+                type: string
+        example:
+            BookID: ID
