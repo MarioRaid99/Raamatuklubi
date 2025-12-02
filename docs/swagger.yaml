@@ -7,7 +7,7 @@ paths:
     /books:
         get:
             tags:
-                - books
+                - Films
             responses:
                 '200':
                     description: Returns a list of Books
@@ -23,6 +23,8 @@ paths:
             summary: Get all the <Books> in API
             description: Return all Films that are registered in API
         post:
+            tags:
+                - Films
             parameters:
                 -
                     name: body
