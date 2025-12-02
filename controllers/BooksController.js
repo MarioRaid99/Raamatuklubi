@@ -37,6 +37,7 @@ async (req, res) => {
         ReleaseYear: req.body.RealeaseYear,
         Language: req.body.Language,
     }
+    
     const createdBook = await db.books.create(newBook);
     return res
     .location(`${Utilities.getBaseURL(req)}/books/${createdBook.BookID}`).sendStatus(201);
