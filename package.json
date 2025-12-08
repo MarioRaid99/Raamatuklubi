@@ -1,0 +1,24 @@
+{
+  "name": "raamatuklubi",
+  "version": "1.0.0",
+  "description": "api ja vebisait raamatute arvustamise jms jaoks (TARge24) ------------- # How to run this app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1", 
+     "start": "concurrently \"cd backend-api && nodemon ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarioRaid99/Raamatuklubi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MarioRaid99/Raamatuklubi/issues"
+  },
+  "homepage": "https://github.com/MarioRaid99/Raamatuklubi#readme",
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
