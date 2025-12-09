@@ -16,4 +16,5 @@ To run this app locally:
 This app is developed by:
 - Mark
 - Mario
++ noku
 -------------
