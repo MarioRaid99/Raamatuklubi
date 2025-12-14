@@ -12,6 +12,10 @@ module.exports = (app) => {
     
     app.route("/users")
   .get(UsersController.getAll);
+
+  app.route("/users/:UserID")
+  .get(UsersController.getByID);
+
     //Kui tuleb uus moodul tuleb see samamoodi siia lisada.
 }
 

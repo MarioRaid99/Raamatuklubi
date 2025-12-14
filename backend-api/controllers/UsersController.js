@@ -1,15 +1,35 @@
-const { db } = require('../db');
+const { db } = require("../db");
 const Utilities = require('./Utilities');
 const UUID = require('uuid');
+const getUser = async (req, res) => {
+  const id = req.params.UserID;
+  if (!id) {
+    res.status(400).send({ error: "Missing User ID!" });
+    return null;
+  }
 
-exports.getAll =
-async (req, res) => {
+  const user = await db.users.findByPk(id);
+  if (!user) {
+    res.status(404).send({ error: "User not found" });
+    return null;
+  }
+
+  return user;
+};
+
+exports.getAll = async (req, res) => {
   const users = await db.users.findAll();
   return res.status(200).send(
     users.map(({ UserID, First_name, Last_name }) => ({
       UserID,
       First_name,
-      Last_name
+      Last_name,
     }))
   );
+};
+
+exports.getByID = async (req, res) => {
+  const user = await getUser(req, res);
+  if (!user) return;
+  return res.status(200).send(user);
 };
