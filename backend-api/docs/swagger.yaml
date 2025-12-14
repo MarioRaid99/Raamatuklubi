@@ -81,6 +81,46 @@ paths:
                                 error: id not found!
             summary: Delete a <Book> from the app
             description: 'Deletes and entry from the app, NEVER TOBE SEEN AGAIN.'
+    /events:
+        get:
+            tags:
+                - Events
+            responses:
+                '200':
+                    description: Returns a list of Events
+                    schema:
+                        type: array
+                        items:
+                            $ref: '#/definitions/event-summary'
+                    examples:
+                        application/json:
+                            -
+                                UniqueID: 018c6f4b-9999-7a1c-9a5f-1b2c3d4e5f60
+                                Title: Raamatuklubi detsember
+            summary: Get all the <Events> in API
+            description: Return all Events that are registered in API
+        post:
+            tags:
+                - Events
+            parameters:
+                -
+                    name: body
+                    description: The <Event> that is to be created.
+                    schema:
+                        $ref: '#/definitions/new-Event'
+                    in: body
+                    required: true
+            responses:
+                '201':
+                    description: Send 201 when <Event> is successfully added to the database.
+                    schema:
+                        $ref: '#/definitions/new-Event'
+                '400':
+                    description: Send 400 when request body is missing some parameter.
+                    schema:
+                        $ref: '#/definitions/error'
+            summary: Create a new <Event> into the app
+            description: Create a new <Event> instance with its required details, for further usage.
 definitions:
     new-Book:
         title: Root Type for new-Book
@@ -129,3 +169,32 @@ definitions:
                 type: string
         example:
             BookID: ID
+    new-Event:
+        title: Root Type for new-Event
+        description: ''
+        required:
+            - Event_type
+            - Title
+            - User_id
+            - Start_time
+        type: object
+        properties:
+            Event_type:
+                type: string
+            Title:
+                type: string
+            User_id:
+                type: string
+            Start_time:
+                type: string
+            Description:
+                type: string
+            Location:
+                type: string
+        example:
+            Event_type: Meetup
+            Title: Raamatuklubi detsember
+            User_id: 018c6f4b-7c7f-7a1c-9a5f-1b2c3d4e5f60
+            Start_time: '2025-12-20T18:00:00Z'
+            Description: Arutame kuu raamatut ja valime järgmise.
+            Location: Tartu, Raekoja plats
