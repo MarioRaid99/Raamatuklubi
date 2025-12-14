@@ -72,3 +72,13 @@ async (req, res) => {
   return res.status(200).send(user);
 };
 
+exports.deleteById =
+async (req, res) => {
+  const user = await getUser(req, res);
+  if (!user) return;
+
+  await user.destroy();
+  return res.status(204).send();
+};
+
+

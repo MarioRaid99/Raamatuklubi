@@ -15,8 +15,9 @@ module.exports = (app) => {
     .post(UsersController.create);;
 
     app.route("/users/:UserID")
-    .get(UsersController.getByID);
-    .put(UsersController.modify);
+    .get(UsersController.getByID)
+    .put(UsersController.modify)
+    .delete(UsersController.deleteById);
     //Kui tuleb uus moodul tuleb see samamoodi siia lisada.
 }
 
