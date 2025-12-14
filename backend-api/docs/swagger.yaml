@@ -1,131 +1,303 @@
-swagger: '2.0'
+swagger: "2.0"
+
 info:
-    title: RaamatuKlubi
-    version: 1.0.0
-    description: Hinda raamatuid
+  title: RaamatuKlubi
+  version: 1.0.0
+  description: Hinda raamatuid
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
 paths:
-    /books:
-        get:
-            tags:
-                - Books
-            responses:
-                '200':
-                    description: Returns a list of Books
-                    schema:
-                        type: array
-                        items:
-                            type: string
-                    examples:
-                        application/json:
-                            - Kalevipoeg
-                            - Harry Potter
-                            - Kriminoloogia
-            summary: Get all the <Books> in API
-            description: Return all Films that are registered in API
-        post:
-            tags:
-                - Books
-            parameters:
-                -
-                    name: body
-                    description: The <Book> that is to be created.
-                    schema:
-                        $ref: '#/definitions/new-Book'
-                    in: body
-                    required: true
-            responses:
-                '201':
-                    description: Send 201 when <Book> is successfully added to the database.
-                    schema:
-                        $ref: '#/definitions/new-Book'
-                '400':
-                    description: 'Missing some parameter, please review your request data!'
-                    schema:
-                        $ref: '#/definitions/error'
-            summary: Create a new <Book> into the app
-            description: 'Create a new <Book> instance with its required details, for further usage.'
-    /books(BookID):
-        get:
-            tags:
-                - Books
-            responses:
-                '200':
-                    description: Returns all details of a given <Book>
-            operationId: BookID
-            description: Will return all details of a given <Book> based on BookID given.
-        delete:
-            tags:
-                - Books
-            parameters:
-                -
-                    name: body
-                    description: id of <Book> to be removed from the app.
-                    schema:
-                        $ref: '#/definitions/delete-film'
-                    in: body
-                    required: true
-            responses:
-                '204':
-                    description: Returns "no content!" when removal of <Book> is successful.
-                    examples:
-                        application/json:
-                            -
-                                error: No content!
-                '404':
-                    description: 'Returns error, when <Book> with specified ID does not exist'
-                    schema:
-                        $ref: '#/definitions/error'
-                    examples:
-                        application/json:
-                            -
-                                error: id not found!
-            summary: Delete a <Book> from the app
-            description: 'Deletes and entry from the app, NEVER TOBE SEEN AGAIN.'
+  /books:
+    get:
+      tags:
+        - Books
+      summary: Get all the <Books> in API
+      description: Return all Books that are registered in API
+      responses:
+        "200":
+          description: Returns a list of Books
+          schema:
+            type: array
+            items:
+              type: string
+          examples:
+            application/json:
+              - Kalevipoeg
+              - Harry Potter
+              - Kriminoloogia
+
+    post:
+      tags:
+        - Books
+      summary: Create a new <Book> into the app
+      description: Create a new <Book> instance with its required details, for further usage.
+      parameters:
+        - in: body
+          name: body
+          description: The <Book> that is to be created.
+          required: true
+          schema:
+            $ref: "#/definitions/new-Book"
+      responses:
+        "201":
+          description: Send 201 when <Book> is successfully added to the database.
+          schema:
+            $ref: "#/definitions/new-Book"
+        "400":
+          description: Missing some parameter, please review your request data!
+          schema:
+            $ref: "#/definitions/error"
+
+  /books/{BookID}:
+    get:
+      tags:
+        - Books
+      operationId: getBookById
+      summary: Get a <Book> by ID
+      description: Will return all details of a given <Book> based on BookID given.
+      parameters:
+        - in: path
+          name: BookID
+          type: string
+          required: true
+          description: ID of the Book
+      responses:
+        "200":
+          description: Returns all details of a given <Book>
+        "404":
+          description: <Book> with specified ID does not exist
+          schema:
+            $ref: "#/definitions/error"
+
+    delete:
+      tags:
+        - Books
+      summary: Delete a <Book> from the app
+      description: Deletes an entry from the app, NEVER TO BE SEEN AGAIN.
+      parameters:
+        - in: body
+          name: body
+          description: id of <Book> to be removed from the app.
+          required: true
+          schema:
+            $ref: "#/definitions/delete-book"
+      responses:
+        "204":
+          description: Returns no content when removal of <Book> is successful.
+          examples:
+            application/json:
+              - error: No content!
+        "404":
+          description: <Book> with specified ID does not exist
+          schema:
+            $ref: "#/definitions/error"
+          examples:
+            application/json:
+              - error: id not found!
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all the <Users> in the API
+      description: Return all Users that are registered in API
+      responses:
+        "200":
+          description: Returns a list of users
+          schema:
+            type: array
+            items:
+              type: string
+          examples:
+            application/json:
+              - orpar3232
+              - p6mmpea44
+              - s66s1774
+
+    post:
+      tags:
+        - Users
+      summary: Create a new <User> into the app
+      description: Create a new <User> instance with its required details, for further usage.
+      parameters:
+        - in: body
+          name: body
+          description: The <User> that is to be created.
+          required: true
+          schema:
+            $ref: "#/definitions/new-User"
+      responses:
+        "201":
+          description: Send 201 when User is succesfully added to the database.
+          schema:
+            $ref: "#/definitions/new-User"
+        "400":
+          description: Send 400 when request body is missing some parameter.
+          schema:
+            $ref: "#/definitions/error"
+
+  /users/{UserID}:
+    get:
+      tags:
+        - Users
+      summary: Get a <User> by ID
+      description: Will return all details of a given <User> on given UserID.
+      parameters:
+        - in: path
+          name: UserID
+          type: string
+          required: true
+          description: ID of the User
+      responses:
+        "200":
+          description: Returns all details of a given <User>
+        "404":
+          description: Returns error when <User> with specified ID does not exist
+          schema:
+            $ref: "#/definitions/error"
+
+    put:
+      tags:
+        - Users
+      summary: Update a <User> by ID
+      description: Contains new data to be changed for the specified User
+      parameters:
+        - in: path
+          name: UserID
+          type: string
+          required: true
+          description: ID of the User
+        - in: body
+          name: body
+          required: true
+          description: Contains new data to be changed for the specified User
+          schema:
+            $ref: "#/definitions/new-User"
+      responses:
+        "201":
+          description: Returns 201 when modification succesful.
+          schema:
+            $ref: "#/definitions/new-User"
+          examples:
+            application/json:
+              - FullName: Madisson Orpar
+                EmailAddress: madis@gmail.com
+                PasswordHash: dszpn32
+                DisplayName: urmas3232
+                PhoneNumber2fa: ""
+        "400":
+          description: Returns 400 if one or more parameters is missing.
+          schema:
+            $ref: "#/definitions/error"
+          examples:
+            application/json:
+              - error: cannot change info because some paramter missing.
+        "404":
+          description: When user is not defined or when user id is not found
+          schema:
+            $ref: "#/definitions/error"
+          examples:
+            application/json:
+              - error: User not found
+
+    delete:
+      tags:
+        - Users
+      summary: Delete a <User> from the app
+      parameters:
+        - in: path
+          name: UserID
+          type: string
+          required: true
+          description: ID of the User
+      responses:
+        "204":
+          description: Returns "no content" when removal of <User> is succesful.
+          examples:
+            application/json:
+              - error: No content!
+        "404":
+          description: Returns error when <User> with specified ID does not exist
+          schema:
+            $ref: "#/definitions/error"
+          examples:
+            application/json:
+              - error: id not found
+
 definitions:
-    new-Book:
-        title: Root Type for new-Book
-        description: ''
-        required:
-            - Description
-            - Language
-            - Name
-            - Pages
-            - RealeaseYear
-        type: object
-        properties:
-            Name:
-                type: string
-            Description:
-                type: string
-            Pages:
-                format: int32
-                type: integer
-            RealeaseYear:
-                format: int32
-                type: integer
-            Language:
-                type: string
-        example:
-            Name: NewBookName
-            Description: NewBookDescription
-            Pages: 125
-            RealeaseYear: 1999
-            Language: NewMovieLanguage
-    error:
-        title: Root Type for error
-        description: This data type is currently a complex object
-        type: object
-        properties:
-            error:
-                type: string
-        example:
-            error: Error message
-    delete-film:
-        title: Root Type for delete-film
-        description: ''
-        type: object
-        properties:
-            BookID:
-                type: string
-        example:
-            BookID: ID
+  new-Book:
+    title: Root Type for new-Book
+    type: object
+    required:
+      - Name
+      - Description
+      - Pages
+      - RealeaseYear
+      - Language
+    properties:
+      Name:
+        type: string
+      Description:
+        type: string
+      Pages:
+        type: integer
+        format: int32
+      RealeaseYear:
+        type: integer
+        format: int32
+      Language:
+        type: string
+    example:
+      Name: NewBookName
+      Description: NewBookDescription
+      Pages: 125
+      RealeaseYear: 1999
+      Language: NewBookLanguage
+
+  new-User:
+    title: Root Type for new-User
+    type: object
+    required:
+      - Username
+    properties:
+      Username:
+        type: string
+      FullName:
+        type: string
+      EmailAddress:
+        type: string
+      PasswordHash:
+        type: string
+      DisplayName:
+        type: string
+      PhoneNumber2fa:
+        type: string
+    example:
+      Username: orpar3232
+      FullName: Madisson Orpar
+      EmailAddress: madis@gmail.com
+      PasswordHash: dszpn32
+      DisplayName: urmas3232
+      PhoneNumber2fa: ""
+
+  delete-book:
+    title: Root Type for delete-book
+    type: object
+    properties:
+      BookID:
+        type: string
+    example:
+      BookID: "ID"
+
+  error:
+    title: Root Type for error
+    type: object
+    properties:
+      error:
+        type: string
+    example:
+      error: Error message
