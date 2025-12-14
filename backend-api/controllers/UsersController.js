@@ -33,3 +33,26 @@ exports.getByID = async (req, res) => {
   if (!user) return;
   return res.status(200).send(user);
 };
+
+exports.create =
+async (req, res) => {
+  if (!req.body.First_name || !req.body.Last_name || !req.body.Email) {
+    return res.status(400).send({
+      error: 'Missing some parameter, please review your request data!'
+    });
+  }
+
+  const newUser = {
+    UserID: UUID.v7(),
+    First_name: req.body.First_name,
+    Last_name: req.body.Last_name,
+    Email: req.body.Email,
+    Phone_number: req.body.Phone_number ?? null
+  };
+
+  const createdUser = await db.users.create(newUser);
+
+  return res
+    .location(`${Utilities.getBaseURL(req)}/users/${createdUser.UserID}`)
+    .sendStatus(201);
+};

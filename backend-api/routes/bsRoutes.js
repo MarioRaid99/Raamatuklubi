@@ -11,10 +11,11 @@ module.exports = (app) => {
     .delete(BooksController.deleteById)
     
     app.route("/users")
-  .get(UsersController.getAll);
+    .get(UsersController.getAll)
+    .post(UsersController.create);;
 
-  app.route("/users/:UserID")
-  .get(UsersController.getByID);
+    app.route("/users/:UserID")
+    .get(UsersController.getByID);
 
     //Kui tuleb uus moodul tuleb see samamoodi siia lisada.
 }
