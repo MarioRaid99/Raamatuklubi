@@ -14,6 +14,9 @@ module.exports = (app) => {
     .get(EventsController.getAll)
     .post(EventsController.create)
 
+    app.route("/events/:UniqueID")
+    .put(EventsController.modify)
+
     //Kui tuleb uus moodul tuleb see samamoodi siia lisada.
 }
 

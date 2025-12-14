@@ -40,3 +40,25 @@ async (req, res) => {
     .location(`${Utilities.getBaseURL(req)}/events/${createdEvent.UniqueID}`)
     .sendStatus(201);
 };
+
+exports.modify =
+async (req, res) => {
+  const event = await getEvent(req, res);
+  if (!event) return;
+
+  const body = req.body || {};
+  const updatableFields = ['Event_type', 'Title', 'Description', 'User_id', 'Start_time', 'Location'];
+  const hasAny = updatableFields.some((k) => body[k] !== undefined);
+
+  if (!hasAny) {
+    return res.status(400).send({ error: 'No valid fields provided for update!' });
+  }
+
+  const patch = {};
+  for (const k of updatableFields) {
+    if (body[k] !== undefined) patch[k] = body[k];
+  }
+
+  await event.update(patch);
+  return res.status(200).send(event);
+};
