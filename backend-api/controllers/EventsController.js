@@ -62,3 +62,12 @@ async (req, res) => {
   await event.update(patch);
   return res.status(200).send(event);
 };
+
+exports.deleteById =
+async (req, res) => {
+  const event = await getEvent(req, res);
+  if (!event) return;
+
+  await event.destroy();
+  return res.status(204).send();
+};
