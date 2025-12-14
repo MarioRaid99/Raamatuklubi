@@ -55,4 +55,20 @@ async (req, res) => {
   return res
     .location(`${Utilities.getBaseURL(req)}/users/${createdUser.UserID}`)
     .sendStatus(201);
+
 };
+
+exports.modify =
+async (req, res) => {
+  const user = await getUser(req, res);
+  if (!user) return;
+
+  const body = req.body || {};
+  if (Object.keys(body).length === 0) {
+    return res.status(400).send({ error: 'No fields provided for update' });
+  }
+
+  await user.update(body);
+  return res.status(200).send(user);
+};
+

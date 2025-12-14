@@ -16,7 +16,7 @@ module.exports = (app) => {
 
     app.route("/users/:UserID")
     .get(UsersController.getByID);
-
+    .put(UsersController.modify);
     //Kui tuleb uus moodul tuleb see samamoodi siia lisada.
 }
 
