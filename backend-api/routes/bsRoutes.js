@@ -11,7 +11,8 @@ module.exports = (app) => {
     .delete(BooksController.deleteById)
     
     app.route("/events")
-    .get(EventsController.getAll);
+    .get(EventsController.getAll)
+    .post(EventsController.create)
 
     //Kui tuleb uus moodul tuleb see samamoodi siia lisada.
 }
