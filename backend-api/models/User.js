@@ -18,7 +18,6 @@ module.exports = (sequelize, DataTypes) => {
       Email: {
         type: DataTypes.STRING,
         allowNull: false
-        // soovi korral: unique: true
       },
       Phone_number: {
         type: DataTypes.INTEGER
