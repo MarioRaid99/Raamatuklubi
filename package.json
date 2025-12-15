@@ -4,8 +4,8 @@
   "description": "api ja vebisait raamatute arvustamise jms jaoks (TARge24) ------------- # How to run this app",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1", 
-     "start": "concurrently \"cd backend-api && nodemon ."
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"cd backend-api && nodemon .\" \"cd frontend-site\\elibary-frontend && npm run serve\""
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/MarioRaid99/Raamatuklubi#readme",
   "dependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.11"
   }
 }
