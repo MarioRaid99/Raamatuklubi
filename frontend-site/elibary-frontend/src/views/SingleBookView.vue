@@ -1,16 +1,16 @@
 <script>
     export default{
-         components: {
-             thisBook: {
-                 BookID:"",
-                 Name:"",
-                 Description:"desc",
-                 UserScore:1,
-                 RunTime:1,
-                 ReleaseYear:2000,
-                 Language:""
-             }
-         },
+        // components: {
+        //        thisBook: {
+        //         BookID:"",
+        //         Name:"",
+        //         Description:"desc",
+        //         UserScore:1,
+        //         RunTime:1,
+        //         ReleaseYear:2000,
+        //         Language:""
+        //     }
+        // },
         props: {
             seekID:{
                 type:String,
@@ -43,31 +43,31 @@
     <table class="table table-striped">
         <tr>
             <td>Raamatu ID</td>
-            <td>{{thisBook.ID}}</td>
+            <td>{{thisBook.BookID}}</td>
         </tr>
         <tr>
             <td>Nimi</td>
-            <td>{{item.Name}}</td>
+            <td>{{thisBook.Name}}</td>
         </tr>
         <tr>
             <td>Kirjeldus</td>
-            <td>{{book.Description}}</td>
+            <td>{{thisBook.Description}}</td>
         </tr>
         <tr>
             <td>Hinnang</td>
-            <td>{{item.UserScore}}</td>
+            <td>{{thisBook.UserScore}}</td>
         </tr>
         <tr>
             <td>Leheküljed</td>
-            <td>{{book.Pages}}</td>
+            <td>{{thisBook.Pages}}</td>
         </tr>
         <tr>
             <td>Väljalasekeaasta</td>
-            <td>{{item.UserScore}}</td>
+            <td>{{thisBook.UserScore}}</td>
         </tr>
         <tr>
             <td>Raamatu keel</td>
-            <td>{{item.Language}}</td>
+            <td>{{thisBook.Language}}</td>
         </tr>
     </table>
 </template>
