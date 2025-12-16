@@ -1,16 +1,16 @@
 <script>
     export default{
-        components: {
-            thisBook: {
-                BookID:"",
-                Name:"",
-                Description:"desc",
-                UserScore:1,
-                RunTime:1,
-                ReleaseYear:2000,
-                Language:""
-            }
-        },
+         components: {
+             thisBook: {
+                 BookID:"",
+                 Name:"",
+                 Description:"desc",
+                 UserScore:1,
+                 RunTime:1,
+                 ReleaseYear:2000,
+                 Language:""
+             }
+         },
         props: {
             seekID:{
                 type:String,

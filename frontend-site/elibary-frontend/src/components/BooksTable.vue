@@ -21,7 +21,7 @@
                 <td>{{ item.Name }}</td>
                 <td>
                     <router-link :to="{name:'book', params: {seekID: item.BookID}}">
-                        <button @click="navigate">ä</button>
+                        <button @click="navigate">Click Here</button>
                     </router-link>
                 </td>
             </tr>

@@ -1,6 +1,6 @@
 <script>
     export default {
-        name: "FilmDetailsTable",
+        name: "BookDetailsTable",
         props: {
             item: {
                 BookID:"",

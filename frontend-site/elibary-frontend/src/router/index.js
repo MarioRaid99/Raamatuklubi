@@ -17,15 +17,15 @@ const routes = [
       import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
   },
   {
-    path: '/books',
-    name: 'books',
-    component: () => import('../views/BooksView.vue')
+    path: "/books",
+    name: "books",
+    component: () => import("../views/BooksView.vue"),
   },
   {
-    path: '/books/:seekID',
-    name: 'books',
-    component: () => import('../views/SingleBookView.vue'),
-    props: route => {return {seekID: String(route.params.BookID)}}
+    path: "/books/:seekID",
+    name: "book",
+    component: () => import("../views/SingleBookView.vue"),
+    props: route => {return {seekID: String(route.params.seekID)}}
   }
 ];
 
