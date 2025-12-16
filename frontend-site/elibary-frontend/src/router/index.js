@@ -20,6 +20,12 @@ const routes = [
     path: '/books',
     name: 'books',
     component: () => import('../views/BooksView.vue')
+  },
+  {
+    path: '/books/:seekID',
+    name: 'books',
+    component: () => import('../views/SingleBookView.vue'),
+    props: route => {return {seekID: String(route.params.BookID)}}
   }
 ];
 

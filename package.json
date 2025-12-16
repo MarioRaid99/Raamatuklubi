@@ -5,19 +5,19 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "concurrently \"cd backend-api && nodemon .\" \"cd frontend-site\\elibary-frontend && npm run serve\""
+    "start": "concurrently \"cd backend-api && npm run nodemon\" \"cd frontend-site\\elibary-frontend && npm run serve\""
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MarioRaid99/Raamatuklubi.git"
+    "url": "git+https://github.com/markwiz/Raamatuklubi.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/MarioRaid99/Raamatuklubi/issues"
+    "url": "https://github.com/markwiz/Raamatuklubi/issues"
   },
-  "homepage": "https://github.com/MarioRaid99/Raamatuklubi#readme",
+  "homepage": "https://github.com/markwiz/Raamatuklubi#readme",
   "dependencies": {
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.11"
