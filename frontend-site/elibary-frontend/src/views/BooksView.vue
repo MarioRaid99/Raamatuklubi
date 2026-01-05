@@ -18,4 +18,3 @@
         <BooksTable :items="allBooks"/>
     </main>
 </template>
-
