@@ -1,36 +1,31 @@
-const {Sequelize, DataTypes} = require('sequelize');
+require("dotenv").config();
+const { Sequelize, DataTypes } = require("sequelize");
 
 const sequelize = new Sequelize(
-    process.env.DB_DBNAME,
-    process.env.DB_USERNAME,
-    process.env.DB_USERPASS,
-    {
-        host: process.env.DB_HOSTNAME,
-        dialect: 'mariadb',
-        logging: console.log,
-
-    }
-)
-
-async() => {
-    try {
-        await sequelize.authenticate();
-        console.log('Connection has been established successfully,yippie!')
-    } catch (error) {
-        console.error("Unable to connect." + error)
-    }
-}
+  process.env.DB_DBNAME,
+  process.env.DB_USERNAME,
+  process.env.DB_USERPASS,
+  {
+    host: process.env.DB_HOSTNAME,
+    dialect: "mariadb",
+    logging: false, // pane true kui tahad SQL logi
+  }
+);
 
 const db = {};
 db.Sequelize = Sequelize;
-db.sequelize = Sequelize;
-db.books = require("./models/Book.js")(sequelize,DataTypes);
-//db.books = require("./models/näide.js")(sequelize,DataTypes);
-//Kui tuleb mudeleid juurde tuleb need siis välja tuua
+db.sequelize = sequelize;
 
-const sync = (async ()=> {
-    await sequelize.sync({alter: true});
-    console.log('DB sync has been completed!')
-})
+db.books = require("./models/Book")(sequelize, DataTypes);
 
-module.exports = {db, sync};
+const connect = async () => {
+  await sequelize.authenticate();
+  console.log("Connection has been established successfully, yippie!");
+};
+
+const sync = async () => {
+  await sequelize.sync({ alter: true });
+  console.log("DB sync has been completed!");
+};
+
+module.exports = { db, connect, sync };

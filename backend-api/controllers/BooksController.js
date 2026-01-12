@@ -1,71 +1,88 @@
-const {db} = require('../db')
-const Utilities = require('./Utilities')
-const UUID = require('uuid')
+const { db } = require("../db");
+const Books = db.books;
 
-exports.getAll =
-async (req,res) => {
-    const books = await db.books.findAll();
-    console.log("getAll: " +books )
-    res
-    .status(200)
-    .send(books.map(({BookID,Name}) => {return{BookID,Name}}))
-}
+exports.getAll = async (req, res) => {
+  try {
+    const books = await Books.findAll({ order: [["createdAt", "DESC"]] });
+    return res.status(200).json(books);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch books", details: err.message });
+  }
+};
 
-exports.getByID = 
-async (req, res) => {
-    const book = await getBook(req, res);
-    if (!book) 
-        {return res.status(404).send({error: 'Book not found'})}
-    return res.status(200).send(book)
-}
+exports.getByID = async (req, res) => {
+  try {
+    const { BookID } = req.params;
+    const book = await Books.findByPk(BookID);
 
-exports.create =
-async (req, res) => {
-    if (
-        !req.body.Name ||
-        !req.body.Description ||
-        !req.body.Pages ||
-        !req.body.RealeaseYear ||
-        !req.body.Language
-    ){
-        return res.status(400).send({error:'Missing some parameter, please review your request data!'})
+    if (!book) return res.status(404).json({ error: "Book not found" });
+    return res.status(200).json(book);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch book", details: err.message });
+  }
+};
+
+exports.create = async (req, res) => {
+  try {
+    const { Name, Description, Pages, ReleaseYear, Language, UserScore } = req.body;
+
+    // minimaalsed validatsioonid (DB teeb ka oma)
+    if (!Name || !Description || Pages == null || ReleaseYear == null || !Language) {
+      return res.status(400).json({
+        error: "Missing required fields",
+        required: ["Name", "Description", "Pages", "ReleaseYear", "Language"],
+      });
     }
-    const newBook = {
-        BookID: UUID.v7(),
-        Name: req.body.Name,
-        Description: req.body.Description,
-        Pages: req.body.Pages,
-        ReleaseYear: req.body.RealeaseYear,
-        Language: req.body.Language,
+
+    const created = await Books.create({
+      Name,
+      Description,
+      Pages,
+      ReleaseYear,
+      Language,
+      UserScore,
+    });
+
+    return res.status(201).json(created);
+  } catch (err) {
+    return res.status(400).json({ error: "Failed to create book", details: err.message });
+  }
+};
+
+exports.deleteById = async (req, res) => {
+  try {
+    const { BookID } = req.params;
+
+    const deleted = await Books.destroy({ where: { BookID } });
+
+    if (!deleted) return res.status(404).json({ error: "Book not found" });
+    return res.status(204).send();
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to delete book", details: err.message });
+  }
+};
+
+exports.updateById = async (req, res) => {
+  try {
+    const { BookID } = req.params;
+
+    const book = await Books.findByPk(BookID);
+    if (!book) return res.status(404).json({ error: "Book not found" });
+
+    const allowed = ["Name", "Description", "UserScore", "Pages", "ReleaseYear", "Language"];
+    const updates = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) updates[key] = req.body[key];
     }
-    
-    const createdBook = await db.books.create(newBook);
-    return res
-    .location(`${Utilities.getBaseURL(req)}/books/${createdBook.BookID}`).sendStatus(201);
-}
 
-
-exports.deleteById = 
-async (req, res) => {
-    const filmToBeDeleted = await getFilm(req,res);
-    if(!filmToBeDeleted) 
-    {
-        return;
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: "No valid fields to update", allowed });
     }
-    await filmToBeDeleted.destroy();
-    res.status(204).send({error:"No Content!"})
-}
 
-const getBook =
-async (req, res) => {
-    const idNumber = req.params.BookID
-    console.log(idNumber)
-    
+    await book.update(updates);
+    return res.status(200).json(book);
+  } catch (err) {
+    return res.status(400).json({ error: "Failed to update book", details: err.message });
+  }
+};
 
-    const book = await db.books.findByPk(idNumber)
-    if(!book) {
-        res.status(404).send({Error: `Book with this id was not fould ${idNumber}`})
-        return null;
-    }
-    return book;
-}
