@@ -1,6 +1,6 @@
 <script>
 import BooksTable from "../components/BooksTable.vue";
-import { getBooks, createBook, deleteBook /*, updateBook*/ } from "../services/booksApi";
+import { getBooks, createBook, deleteBook, updateBook } from "../services/booksApi";
 
 export default {
   components: { BooksTable },
@@ -11,7 +11,6 @@ export default {
       loading: false,
       error: "",
 
-      // create form
       form: {
         Name: "",
         Description: "",
@@ -21,8 +20,7 @@ export default {
         UserScore: null,
       },
 
-      // future: edit
-      editing: null,
+      editing: null, // sisaldab Book objekti kui editime
     };
   },
 
@@ -31,6 +29,9 @@ export default {
   },
 
   methods: {
+    /* ======================
+       A) READ
+    ====================== */
     async refresh() {
       this.error = "";
       this.loading = true;
@@ -43,38 +44,45 @@ export default {
       }
     },
 
-    async onCreate() {
+    /* ======================
+       B) CREATE / UPDATE
+    ====================== */
+    async submitForm() {
       this.error = "";
+
+      if (!this.form.Name || !this.form.Description || !this.form.Language) {
+        this.error = "Täida vähemalt Name, Description ja Language.";
+        return;
+      }
+
+      const payload = {
+        Name: this.form.Name,
+        Description: this.form.Description,
+        Pages: Number(this.form.Pages),
+        ReleaseYear: Number(this.form.ReleaseYear),
+        Language: this.form.Language,
+        UserScore: this.form.UserScore,
+      };
+
       try {
-        // lihtne kontroll
-        if (!this.form.Name || !this.form.Description || !this.form.Language) {
-          this.error = "Täida vähemalt Name, Description ja Language.";
-          return;
+        if (this.editing) {
+          // UPDATE
+          await updateBook(this.editing.BookID, payload);
+        } else {
+          // CREATE
+          await createBook(payload);
         }
 
-        await createBook({
-          Name: this.form.Name,
-          Description: this.form.Description,
-          Pages: Number(this.form.Pages),
-          ReleaseYear: Number(this.form.ReleaseYear),
-          Language: this.form.Language,
-          UserScore: this.form.UserScore,
-        });
-
-        // reset
-        this.form.Name = "";
-        this.form.Description = "";
-        this.form.Pages = 1;
-        this.form.ReleaseYear = new Date().getFullYear();
-        this.form.Language = "ET";
-        this.form.UserScore = null;
-
         await this.refresh();
+        this.resetForm();
       } catch (e) {
         this.error = e?.message || String(e);
       }
     },
 
+    /* ======================
+       C) DELETE
+    ====================== */
     async onDelete(item) {
       const ok = confirm(`Kustutan raamatu: "${item.Name}"?`);
       if (!ok) return;
@@ -82,15 +90,16 @@ export default {
       this.error = "";
       try {
         await deleteBook(item.BookID);
-        // kiire UX: eemalda kohe tabelist
-        this.allBooks = this.allBooks.filter((b) => b.BookID !== item.BookID);
+        this.allBooks = this.allBooks.filter(b => b.BookID !== item.BookID);
       } catch (e) {
         this.error = e?.message || String(e);
       }
     },
 
-    onEdit(item) {
-      // Praegu lihtsalt prefill vormi; päris update lisame siis kui backendil PATCH/PUT olemas
+    /* ======================
+       D) EDIT MODE
+    ====================== */
+    startEdit(item) {
       this.editing = item;
       this.form = {
         Name: item.Name,
@@ -100,7 +109,22 @@ export default {
         Language: item.Language,
         UserScore: item.UserScore,
       };
-      alert("Edit on UI-s ette valmistatud. Update hakkab tööle, kui lisad backendile PATCH/PUT /books/:BookID.");
+    },
+
+    cancelEdit() {
+      this.resetForm();
+    },
+
+    resetForm() {
+      this.editing = null;
+      this.form = {
+        Name: "",
+        Description: "",
+        Pages: 1,
+        ReleaseYear: new Date().getFullYear(),
+        Language: "ET",
+        UserScore: null,
+      };
     },
   },
 };
@@ -117,45 +141,65 @@ export default {
 
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
+    <!-- FORM -->
     <div class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title">Lisa uus raamat</h5>
+        <h5 class="card-title">
+          {{ editing ? "Muuda raamatut" : "Lisa uus raamat" }}
+        </h5>
 
         <div class="row g-2">
           <div class="col-md-4">
             <input class="form-control" v-model="form.Name" placeholder="Name" />
           </div>
+
           <div class="col-md-2">
             <input class="form-control" type="number" v-model="form.Pages" placeholder="Pages" />
           </div>
+
           <div class="col-md-2">
             <input class="form-control" type="number" v-model="form.ReleaseYear" placeholder="ReleaseYear" />
           </div>
+
           <div class="col-md-2">
             <input class="form-control" v-model="form.Language" placeholder="Language" />
           </div>
+
           <div class="col-md-2 d-grid">
-            <button class="btn btn-primary" @click="onCreate" :disabled="loading">
-              Lisa
+            <button class="btn btn-primary" @click="submitForm" :disabled="loading">
+              {{ editing ? "Salvesta" : "Lisa" }}
             </button>
           </div>
+
+          <div class="col-md-2 d-grid" v-if="editing">
+            <button class="btn btn-outline-secondary" @click="cancelEdit">
+              Tühista
+            </button>
+          </div>
+
           <div class="col-12">
-            <textarea class="form-control" v-model="form.Description" rows="2" placeholder="Description"></textarea>
+            <textarea
+              class="form-control"
+              v-model="form.Description"
+              rows="2"
+              placeholder="Description"
+            />
           </div>
         </div>
 
         <div v-if="editing" class="text-muted mt-2">
-          Edit mode: {{ editing.BookID }} (praegu ainult UI prefill)
+          Muudan raamatut ID-ga: {{ editing.BookID }}
         </div>
       </div>
     </div>
 
+    <!-- TABLE -->
     <div v-if="loading" class="text-muted">Laen raamatuid...</div>
 
     <BooksTable
       :items="allBooks"
       @delete="onDelete"
-      @edit="onEdit"
+      @edit="startEdit"
     />
   </main>
 </template>
