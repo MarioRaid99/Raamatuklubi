@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "concurrently \"cd backend-api && nodemon .\" \"cd frontend-site\\elibary-frontend && npm run serve\""
+"start": "concurrently \"cd backend-api && nodemon .\" \"cd frontend-site/elibary-frontend && npm run serve\"",
+    "serve": "vue-cli-service serve"
   },
   "keywords": [],
   "author": "",

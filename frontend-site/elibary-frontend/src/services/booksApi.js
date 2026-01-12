@@ -21,7 +21,8 @@ export async function createBook(payload) {
 
 export async function deleteBook(bookId) {
   const res = await fetch(`${API_URL}/books/${bookId}`, { method: "DELETE" });
-  if (!res.ok && res.status !== 204) throw new Error(`DELETE /books/${bookId} failed: ${res.status}`);
+  if (!res.ok && res.status !== 204)
+    throw new Error(`DELETE /books/${bookId} failed: ${res.status}`);
   return true;
 }
 

@@ -1,6 +1,11 @@
 <script>
 import BooksTable from "../components/BooksTable.vue";
-import { getBooks, createBook, deleteBook, updateBook } from "../services/booksApi";
+import {
+  getBooks,
+  createBook,
+  deleteBook,
+  updateBook,
+} from "../services/booksApi";
 
 export default {
   components: { BooksTable },
@@ -90,7 +95,7 @@ export default {
       this.error = "";
       try {
         await deleteBook(item.BookID);
-        this.allBooks = this.allBooks.filter(b => b.BookID !== item.BookID);
+        this.allBooks = this.allBooks.filter((b) => b.BookID !== item.BookID);
       } catch (e) {
         this.error = e?.message || String(e);
       }
@@ -134,7 +139,11 @@ export default {
   <main class="container py-4">
     <div class="d-flex align-items-center justify-content-between mb-3">
       <h2 class="m-0">Books</h2>
-      <button class="btn btn-outline-secondary" @click="refresh" :disabled="loading">
+      <button
+        class="btn btn-outline-secondary"
+        @click="refresh"
+        :disabled="loading"
+      >
         Refresh
       </button>
     </div>
@@ -150,23 +159,45 @@ export default {
 
         <div class="row g-2">
           <div class="col-md-4">
-            <input class="form-control" v-model="form.Name" placeholder="Name" />
+            <input
+              class="form-control"
+              v-model="form.Name"
+              placeholder="Name"
+            />
           </div>
 
           <div class="col-md-2">
-            <input class="form-control" type="number" v-model="form.Pages" placeholder="Pages" />
+            <input
+              class="form-control"
+              type="number"
+              v-model="form.Pages"
+              placeholder="Pages"
+            />
           </div>
 
           <div class="col-md-2">
-            <input class="form-control" type="number" v-model="form.ReleaseYear" placeholder="ReleaseYear" />
+            <input
+              class="form-control"
+              type="number"
+              v-model="form.ReleaseYear"
+              placeholder="ReleaseYear"
+            />
           </div>
 
           <div class="col-md-2">
-            <input class="form-control" v-model="form.Language" placeholder="Language" />
+            <input
+              class="form-control"
+              v-model="form.Language"
+              placeholder="Language"
+            />
           </div>
 
           <div class="col-md-2 d-grid">
-            <button class="btn btn-primary" @click="submitForm" :disabled="loading">
+            <button
+              class="btn btn-primary"
+              @click="submitForm"
+              :disabled="loading"
+            >
               {{ editing ? "Salvesta" : "Lisa" }}
             </button>
           </div>
@@ -196,10 +227,6 @@ export default {
     <!-- TABLE -->
     <div v-if="loading" class="text-muted">Laen raamatuid...</div>
 
-    <BooksTable
-      :items="allBooks"
-      @delete="onDelete"
-      @edit="startEdit"
-    />
+    <BooksTable :items="allBooks" @delete="onDelete" @edit="startEdit" />
   </main>
 </template>
