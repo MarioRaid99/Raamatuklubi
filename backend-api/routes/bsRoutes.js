@@ -6,6 +6,7 @@ module.exports = (app) => {
     .post(BooksController.create);
 
   app.route("/books/:BookID")
+    .patch(BooksController.updateById)
     .get(BooksController.getByID)
     .delete(BooksController.deleteById);
 };
