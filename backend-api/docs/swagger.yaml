@@ -1,131 +1,205 @@
-swagger: '2.0'
+swagger: "2.0"
+
 info:
-    title: RaamatuKlubi
-    version: 1.0.0
-    description: Hinda raamatuid
+  title: RaamatuKlubi
+  version: "1.0.0"
+  description: Hinda raamatuid
+
 paths:
-    /books:
-        get:
-            tags:
-                - Books
-            responses:
-                '200':
-                    description: Returns a list of Books
-                    schema:
-                        type: array
-                        items:
-                            type: string
-                    examples:
-                        application/json:
-                            - Kalevipoeg
-                            - Harry Potter
-                            - Kriminoloogia
-            summary: Get all the <Books> in API
-            description: Return all Films that are registered in API
-        post:
-            tags:
-                - Books
-            parameters:
-                -
-                    name: body
-                    description: The <Book> that is to be created.
-                    schema:
-                        $ref: '#/definitions/new-Book'
-                    in: body
-                    required: true
-            responses:
-                '201':
-                    description: Send 201 when <Book> is successfully added to the database.
-                    schema:
-                        $ref: '#/definitions/new-Book'
-                '400':
-                    description: 'Missing some parameter, please review your request data!'
-                    schema:
-                        $ref: '#/definitions/error'
-            summary: Create a new <Book> into the app
-            description: 'Create a new <Book> instance with its required details, for further usage.'
-    /books(BookID):
-        get:
-            tags:
-                - Books
-            responses:
-                '200':
-                    description: Returns all details of a given <Book>
-            operationId: BookID
-            description: Will return all details of a given <Book> based on BookID given.
-        delete:
-            tags:
-                - Books
-            parameters:
-                -
-                    name: body
-                    description: id of <Book> to be removed from the app.
-                    schema:
-                        $ref: '#/definitions/delete-film'
-                    in: body
-                    required: true
-            responses:
-                '204':
-                    description: Returns "no content!" when removal of <Book> is successful.
-                    examples:
-                        application/json:
-                            -
-                                error: No content!
-                '404':
-                    description: 'Returns error, when <Book> with specified ID does not exist'
-                    schema:
-                        $ref: '#/definitions/error'
-                    examples:
-                        application/json:
-                            -
-                                error: id not found!
-            summary: Delete a <Book> from the app
-            description: 'Deletes and entry from the app, NEVER TOBE SEEN AGAIN.'
+  /books:
+    get:
+      tags:
+        - Books
+      summary: Get all Books
+      description: Return all Books that are registered in API
+      responses:
+        "200":
+          description: Returns a list of Books
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Book"
+
+    post:
+      tags:
+        - Books
+      summary: Create a new Book
+      description: Create a new Book instance
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/NewBook"
+      responses:
+        "201":
+          description: Book successfully created
+          schema:
+            $ref: "#/definitions/Book"
+        "400":
+          description: Invalid input
+          schema:
+            $ref: "#/definitions/Error"
+
+  /books/{BookID}:
+    get:
+      tags:
+        - Books
+      summary: Get Book by ID
+      description: Return Book details by BookID
+      parameters:
+        - name: BookID
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Book found
+          schema:
+            $ref: "#/definitions/Book"
+        "404":
+          description: Book not found
+          schema:
+            $ref: "#/definitions/Error"
+
+    patch:
+      tags:
+        - Books
+      summary: Update Book (partial)
+      description: Update one or more fields of a Book
+      parameters:
+        - name: BookID
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/NewBook"
+      responses:
+        "200":
+          description: Book updated
+          schema:
+            $ref: "#/definitions/Book"
+        "400":
+          description: Invalid update data
+          schema:
+            $ref: "#/definitions/Error"
+        "404":
+          description: Book not found
+          schema:
+            $ref: "#/definitions/Error"
+
+    put:
+      tags:
+        - Books
+      summary: Update Book (full)
+      description: Replace Book with new data
+      parameters:
+        - name: BookID
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/NewBook"
+      responses:
+        "200":
+          description: Book replaced
+          schema:
+            $ref: "#/definitions/Book"
+        "404":
+          description: Book not found
+          schema:
+            $ref: "#/definitions/Error"
+
+    delete:
+      tags:
+        - Books
+      summary: Delete Book
+      description: Permanently delete a Book
+      parameters:
+        - name: BookID
+          in: path
+          required: true
+          type: string
+      responses:
+        "204":
+          description: No content
+        "404":
+          description: Book not found
+          schema:
+            $ref: "#/definitions/Error"
+
 definitions:
-    new-Book:
-        title: Root Type for new-Book
-        description: ''
-        required:
-            - Description
-            - Language
-            - Name
-            - Pages
-            - RealeaseYear
-        type: object
-        properties:
-            Name:
-                type: string
-            Description:
-                type: string
-            Pages:
-                format: int32
-                type: integer
-            RealeaseYear:
-                format: int32
-                type: integer
-            Language:
-                type: string
-        example:
-            Name: NewBookName
-            Description: NewBookDescription
-            Pages: 125
-            RealeaseYear: 1999
-            Language: NewMovieLanguage
-    error:
-        title: Root Type for error
-        description: This data type is currently a complex object
-        type: object
-        properties:
-            error:
-                type: string
-        example:
-            error: Error message
-    delete-film:
-        title: Root Type for delete-film
-        description: ''
-        type: object
-        properties:
-            BookID:
-                type: string
-        example:
-            BookID: ID
+  Book:
+    type: object
+    properties:
+      BookID:
+        type: string
+        example: "019adf62-0763-718c-ab35-8eb72e154bba"
+      Name:
+        type: string
+      Description:
+        type: string
+      UserScore:
+        type: number
+        format: float
+        example: 4.5
+      Pages:
+        type: integer
+        format: int32
+      ReleaseYear:
+        type: integer
+        format: int32
+      Language:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+
+  NewBook:
+    type: object
+    required:
+      - Name
+      - Description
+      - Pages
+      - ReleaseYear
+      - Language
+    properties:
+      Name:
+        type: string
+      Description:
+        type: string
+      Pages:
+        type: integer
+        format: int32
+      ReleaseYear:
+        type: integer
+        format: int32
+      Language:
+        type: string
+      UserScore:
+        type: number
+        format: float
+    example:
+      Name: "NewBookName"
+      Description: "NewBookDescription"
+      Pages: 125
+      ReleaseYear: 1999
+      Language: "ET"
+      UserScore: 4
+
+  Error:
+    type: object
+    properties:
+      error:
+        type: string
+    example:
+      error: "Error message"
