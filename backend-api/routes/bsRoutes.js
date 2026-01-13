@@ -1,14 +1,17 @@
 const BooksController = require("../controllers/BooksController")
 //kui tuleb veel controllereid siis tuleb need siia lisada.
 
+
 module.exports = (app) => {
-    app.route("/books")
+  app
+    .route("/books")
     .get(BooksController.getAll)
-    .post(BooksController.create)
-    app.route("/books/:BookID")
+    .post(BooksController.create);
+
+  app
+    .route("/books/:BookID")
     .get(BooksController.getByID)
-    .delete(BooksController.deleteById)
+    .delete(BooksController.deleteById);
+};
 
-    //Kui tuleb uus moodul tuleb see samamoodi siia lisada.
-}
-
+//Kui tuleb uus moodul tuleb see samamoodi siia lisada.

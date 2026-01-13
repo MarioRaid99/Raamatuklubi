@@ -1,28 +1,49 @@
-<<<<<<< Updated upstream
-const {db} = require('../db')
-const Utilities = require('./Utilities')
-const UUID = require('uuid')
-
-exports.getAll =
-async (req,res) => {
-    const books = await db.books.findAll();
-    console.log("getAll: " +books )
-    res
-    .status(200)
-    .send(books.map(({BookID,Name}) => {return{BookID,Name}}))
-}
-=======
 const { db } = require("../db");
-const Books = db.books;
+const Utilities = require("./Utilities");
+const UUID = require("uuid");
 const { Op } = require("sequelize");
+
 
 exports.getAll = async (req, res) => {
   try {
     const { q, language, year, minYear, maxYear } = req.query;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
+
+    const where = {};
+
+    if (q && q.trim()) {
+      const needle = `%${q.trim()}%`;
+      where[Op.or] = [
+        { Name: { [Op.like]: needle } },
+        { Description: { [Op.like]: needle } },
+      ];
+    }
+
+    if (language && language.trim()) {
+      where.Language = language.trim();
+    }
+
+    if (year) {
+      where.ReleaseYear = Number(year);
+    } else if (minYear || maxYear) {
+      where.ReleaseYear = {};
+      if (minYear) where.ReleaseYear[Op.gte] = Number(minYear);
+      if (maxYear) where.ReleaseYear[Op.lte] = Number(maxYear);
+    }
+
+    const books = await db.books.findAll({
+      where,
+      order: [["createdAt", "DESC"]],
+    });
+
+    return res.status(200).send(books);
+  } catch (err) {
+    return res.status(400).send({
+      error: "Failed to fetch books",
+      details: err.message,
+    });
+  }
+};
+
 
     const where = {};
 
