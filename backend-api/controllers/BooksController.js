@@ -23,8 +23,12 @@ exports.getByID = async (req, res) => {
 };
 
 exports.create = async (req, res) => {
+<<<<<<< Updated upstream
   try {
     const { Name, Description, Pages, ReleaseYear, Language, UserScore } = req.body;
+=======
+  const releaseYear = req.body.ReleaseYear ?? req.body.RealeaseYear;
+>>>>>>> Stashed changes
 
     // minimaalsed validatsioonid (DB teeb ka oma)
     if (!Name || !Description || Pages == null || ReleaseYear == null || !Language) {
