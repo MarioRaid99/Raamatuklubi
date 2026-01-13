@@ -5,13 +5,11 @@ info:
     description: Hinda raamatuid
 paths:
    /books:
-  get:
+    get:
     tags:
       - Books
     summary: Get all Books
-    description: >
-      Return all Books that are registered in API.
-      Supports search and filtering via query parameters.
+    description: Return all Books that are registered in API
     parameters:
       - name: q
         in: query
