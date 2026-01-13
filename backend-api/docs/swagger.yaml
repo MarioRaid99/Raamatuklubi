@@ -4,24 +4,55 @@ info:
     version: 1.0.0
     description: Hinda raamatuid
 paths:
-    /books:
-        get:
-            tags:
-                - Books
-            responses:
-                '200':
-                    description: Returns a list of Books
-                    schema:
-                        type: array
-                        items:
-                            type: string
-                    examples:
-                        application/json:
-                            - Kalevipoeg
-                            - Harry Potter
-                            - Kriminoloogia
-            summary: Get all the <Books> in API
-            description: Return all Films that are registered in API
+   /books:
+  get:
+    tags:
+      - Books
+    summary: Get all Books
+    description: >
+      Return all Books that are registered in API.
+      Supports search and filtering via query parameters.
+    parameters:
+      - name: q
+        in: query
+        type: string
+        required: false
+        description: Search in Name and Description
+      - name: language
+        in: query
+        type: string
+        required: false
+        description: Filter by Language
+      - name: year
+        in: query
+        type: integer
+        format: int32
+        required: false
+        description: Filter by exact ReleaseYear
+      - name: minYear
+        in: query
+        type: integer
+        format: int32
+        required: false
+        description: Filter ReleaseYear >= minYear
+      - name: maxYear
+        in: query
+        type: integer
+        format: int32
+        required: false
+        description: Filter ReleaseYear <= maxYear
+    responses:
+      "200":
+        description: Returns a list of Books
+        schema:
+          type: array
+          items:
+            $ref: "#/definitions/Book"
+      "400":
+        description: Invalid query parameters
+        schema:
+          $ref: "#/definitions/error"
+
         post:
             tags:
                 - Books
