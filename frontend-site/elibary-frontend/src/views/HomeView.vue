@@ -67,10 +67,7 @@
 
 <script>
 import HelloWorld from "@/components/HelloWorld.vue";
-<<<<<<< Updated upstream
-=======
 import { getBooks } from "@/services/booksApi";
->>>>>>> Stashed changes
 
 export default {
   name: "HomeView",

@@ -224,7 +224,6 @@ export default {
       </div>
     </div>
 
-    <!-- TABLE -->
     <div v-if="loading" class="text-muted">Laen raamatuid...</div>
 
     <BooksTable :items="allBooks" @delete="onDelete" @edit="startEdit" />

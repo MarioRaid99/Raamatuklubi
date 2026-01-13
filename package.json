@@ -1,15 +1,11 @@
 {
   "name": "raamatuklubi",
   "version": "1.0.0",
-  "description": "api ja vebisait raamatute arvustamise jms jaoks (TARge24) ------------- # How to run this app",
+  "description": "Api ja veebisait raamatute arvustamise jms jaoks (TARge24) ------------- # How to run this app",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-<<<<<<< Updated upstream
-"start": "concurrently \"cd backend-api && nodemon .\" \"cd frontend-site/elibary-frontend && npm run serve\""
-=======
     "start": "concurrently \"cd backend-api && nodemon .\" \"cd frontend-site/elibary-frontend && npm run serve\""
->>>>>>> Stashed changes
   },
   "repository": {
     "type": "git",
