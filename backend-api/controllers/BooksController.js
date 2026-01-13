@@ -3,7 +3,6 @@ const Utilities = require("./Utilities");
 const UUID = require("uuid");
 const { Op } = require("sequelize");
 
-
 exports.getAll = async (req, res) => {
   try {
     const { q, language, year, minYear, maxYear } = req.query;
@@ -18,10 +17,12 @@ exports.getAll = async (req, res) => {
       ];
     }
 
+    // Filter by Language
     if (language && language.trim()) {
       where.Language = language.trim();
     }
 
+    // Filter by exact year OR range
     if (year) {
       where.ReleaseYear = Number(year);
     } else if (minYear || maxYear) {
@@ -44,170 +45,59 @@ exports.getAll = async (req, res) => {
   }
 };
 
-
-    const where = {};
-
-    if (q && q.trim().length > 0) {
-      const needle = `%${q.trim()}%`;
-      where[Op.or] = [
-        { Name: { [Op.like]: needle } },
-        { Description: { [Op.like]: needle } },
-      ];
-    }
-
-    if (language && language.trim().length > 0) {
-      where.Language = language.trim();
-    }
-
-    if (year) {
-      where.ReleaseYear = Number(year);
-    } else {
-      if (minYear || maxYear) {
-        where.ReleaseYear = {};
-        if (minYear) where.ReleaseYear[Op.gte] = Number(minYear);
-        if (maxYear) where.ReleaseYear[Op.lte] = Number(maxYear);
-      }
-    }
-
-    const books = await Books.findAll({
-      where,
-      order: [["createdAt", "DESC"]],
-    });
-
-    res.status(200).json(books);
-  } catch (err) {
-    res.status(400).json({ error: "Failed to fetch books", details: err.message });
-  }
+// GET /books/:BookID
+exports.getByID = async (req, res) => {
+  const book = await getBook(req, res);
+  if (!book) return res.status(404).send({ error: "Book not found" });
+  return res.status(200).send(book);
 };
->>>>>>> Stashed changes
 
-    const where = {};
+// POST /books
+exports.create = async (req, res) => {
+ eleaseYear, et midagi katki ei läheks.
+  const releaseYear = req.body.ReleaseYear ?? req.body.RealeaseYear;
 
-    if (q && q.trim().length > 0) {
-      const needle = `%${q.trim()}%`;
-      where[Op.or] = [
-        { Name: { [Op.like]: needle } },
-        { Description: { [Op.like]: needle } },
-      ];
-    }
-
-    if (language && language.trim().length > 0) {
-      where.Language = language.trim();
-    }
-
-    if (year) {
-      where.ReleaseYear = Number(year);
-    } else {
-      if (minYear || maxYear) {
-        where.ReleaseYear = {};
-        if (minYear) where.ReleaseYear[Op.gte] = Number(minYear);
-        if (maxYear) where.ReleaseYear[Op.lte] = Number(maxYear);
-      }
-    }
-
-    const books = await Books.findAll({
-      where,
-      order: [["createdAt", "DESC"]],
+  if (!req.body.Name || !req.body.Description || !req.body.Pages || !releaseYear || !req.body.Language) {
+    return res.status(400).send({
+      error: "Missing some parameter, please review your request data!",
     });
-
-    res.status(200).json(books);
-  } catch (err) {
-    res.status(400).json({ error: "Failed to fetch books", details: err.message });
   }
+
+  const newBook = {
+    BookID: UUID.v7(),
+    Name: req.body.Name,
+    Description: req.body.Description,
+    Pages: Number(req.body.Pages),
+    ReleaseYear: Number(releaseYear),
+    Language: req.body.Language,
+    UserScore: req.body.UserScore ?? null,
+  };
+
+  const createdBook = await db.books.create(newBook);
+
+  return res
+    .status(201)
+    .location(`${Utilities.getBaseURL(req)}/books/${createdBook.BookID}`)
+    .send(createdBook);
 };
->>>>>>> Stashed changes
 
-    const where = {};
+// DELETE /books/:BookID
+exports.deleteById = async (req, res) => {
+  const bookToBeDeleted = await getBook(req, res);
+  if (!bookToBeDeleted) return;
 
-    if (q && q.trim().length > 0) {
-      const needle = `%${q.trim()}%`;
-      where[Op.or] = [
-        { Name: { [Op.like]: needle } },
-        { Description: { [Op.like]: needle } },
-      ];
-    }
+  await bookToBeDeleted.destroy();
+  return res.status(204).send();
+};
 
-    if (language && language.trim().length > 0) {
-      where.Language = language.trim();
-    }
+// Helper: find book by PK
+const getBook = async (req, res) => {
+  const id = req.params.BookID;
 
-    if (year) {
-      where.ReleaseYear = Number(year);
-    } else {
-      if (minYear || maxYear) {
-        where.ReleaseYear = {};
-        if (minYear) where.ReleaseYear[Op.gte] = Number(minYear);
-        if (maxYear) where.ReleaseYear[Op.lte] = Number(maxYear);
-      }
-    }
-
-    const books = await Books.findAll({
-      where,
-      order: [["createdAt", "DESC"]],
-    });
-
-    res.status(200).json(books);
-  } catch (err) {
-    res.status(400).json({ error: "Failed to fetch books", details: err.message });
+  const book = await db.books.findByPk(id);
+  if (!book) {
+    res.status(404).send({ error: `Book with this id was not found: ${id}` });
+    return null;
   }
+  return book;
 };
->>>>>>> Stashed changes
-
-exports.getByID = 
-async (req, res) => {
-    const book = await getBook(req, res);
-    if (!book) 
-        {return res.status(404).send({error: 'Book not found'})}
-    return res.status(200).send(book)
-}
-
-exports.create =
-async (req, res) => {
-    if (
-        !req.body.Name ||
-        !req.body.Description ||
-        !req.body.Pages ||
-        !req.body.RealeaseYear ||
-        !req.body.Language
-    ){
-        return res.status(400).send({error:'Missing some parameter, please review your request data!'})
-    }
-    const newBook = {
-        BookID: UUID.v7(),
-        Name: req.body.Name,
-        Description: req.body.Description,
-        Pages: req.body.Pages,
-        ReleaseYear: req.body.RealeaseYear,
-        Language: req.body.Language,
-    }
-    
-    const createdBook = await db.books.create(newBook);
-    return res
-    .location(`${Utilities.getBaseURL(req)}/books/${createdBook.BookID}`).sendStatus(201);
-}
-
-
-exports.deleteById = 
-async (req, res) => {
-    const filmToBeDeleted = await getFilm(req,res);
-    if(!filmToBeDeleted) 
-    {
-        return;
-    }
-    await filmToBeDeleted.destroy();
-    res.status(204).send({error:"No Content!"})
-}
-
-const getBook =
-async (req, res) => {
-    const idNumber = req.params.BookID
-    console.log(idNumber)
-    
-
-    const book = await db.books.findByPk(idNumber)
-    if(!book) {
-        res.status(404).send({Error: `Book with this id was not fould ${idNumber}`})
-        return null;
-    }
-    return book;
-}
