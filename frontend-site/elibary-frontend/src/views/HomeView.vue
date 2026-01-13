@@ -8,6 +8,13 @@
 <script>
 // @ is an alias to /src
 import HelloWorld from "@/components/HelloWorld.vue";
+import { getBooks } from "@/services/booksApi";
+this.allBooks = await getBooks({
+  q: this.search,
+  language: this.language,
+  year: this.year,
+});
+
 
 export default {
   name: "HomeView",
