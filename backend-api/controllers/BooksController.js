@@ -19,6 +19,44 @@ const { Op } = require("sequelize");
 exports.getAll = async (req, res) => {
   try {
     const { q, language, year, minYear, maxYear } = req.query;
+<<<<<<< Updated upstream
+=======
+
+    const where = {};
+
+    if (q && q.trim().length > 0) {
+      const needle = `%${q.trim()}%`;
+      where[Op.or] = [
+        { Name: { [Op.like]: needle } },
+        { Description: { [Op.like]: needle } },
+      ];
+    }
+
+    if (language && language.trim().length > 0) {
+      where.Language = language.trim();
+    }
+
+    if (year) {
+      where.ReleaseYear = Number(year);
+    } else {
+      if (minYear || maxYear) {
+        where.ReleaseYear = {};
+        if (minYear) where.ReleaseYear[Op.gte] = Number(minYear);
+        if (maxYear) where.ReleaseYear[Op.lte] = Number(maxYear);
+      }
+    }
+
+    const books = await Books.findAll({
+      where,
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.status(200).json(books);
+  } catch (err) {
+    res.status(400).json({ error: "Failed to fetch books", details: err.message });
+  }
+};
+>>>>>>> Stashed changes
 
     const where = {};
 
