@@ -15,6 +15,8 @@ export default {
       loading: false,
       error: "",
 
+      editing: null,
+
       form: {
         Title: "",
         Description: "",
@@ -22,8 +24,6 @@ export default {
         EndTime: "",
         Location: "",
       },
-
-      editing: null,
     };
   },
 
@@ -35,6 +35,7 @@ export default {
     async refresh() {
       this.loading = true;
       this.error = "";
+
       try {
         this.allEvents = await getEvents();
       } catch (e) {
@@ -61,11 +62,13 @@ export default {
           Location: this.form.Location,
         });
 
-        this.form.Title = "";
-        this.form.Description = "";
-        this.form.StartTime = "";
-        this.form.EndTime = "";
-        this.form.Location = "";
+        this.form = {
+          Title: "",
+          Description: "",
+          StartTime: "",
+          EndTime: "",
+          Location: "",
+        };
 
         await this.refresh();
       } catch (e) {
@@ -73,23 +76,9 @@ export default {
       }
     },
 
-    async onDelete(item) {
-      const ok = confirm(`Kustutan eventi: "${item.Title}"?`);
-      if (!ok) return;
-
-      this.error = "";
-      try {
-        await deleteEvent(item.EventID);
-        this.allEvents = this.allEvents.filter(
-          (x) => x.EventID !== item.EventID
-        );
-      } catch (e) {
-        this.error = e?.message || String(e);
-      }
-    },
-
     startEdit(item) {
       this.editing = item;
+
       this.form = {
         Title: item.Title || "",
         Description: item.Description || "",
@@ -103,6 +92,7 @@ export default {
       if (!this.editing) return;
 
       this.error = "";
+
       try {
         await updateEvent(this.editing.EventID, {
           Title: this.form.Title,
@@ -130,6 +120,7 @@ export default {
 
     cancelEdit() {
       this.editing = null;
+
       this.form = {
         Title: "",
         Description: "",
@@ -137,6 +128,22 @@ export default {
         EndTime: "",
         Location: "",
       };
+    },
+
+    async onDelete(item) {
+      const ok = confirm(`Kustutan eventi: "${item.Title}"?`);
+      if (!ok) return;
+
+      this.error = "";
+
+      try {
+        await deleteEvent(item.EventID);
+        this.allEvents = this.allEvents.filter(
+          (x) => x.EventID !== item.EventID
+        );
+      } catch (e) {
+        this.error = e?.message || String(e);
+      }
     },
   },
 };
@@ -175,7 +182,7 @@ export default {
             />
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-6">
             <input
               class="form-control"
               v-model="form.Location"
@@ -183,31 +190,11 @@ export default {
             />
           </div>
 
-          <div class="col-md-2 d-grid">
-            <button
-              v-if="!editing"
-              class="btn btn-primary"
-              @click="onCreate"
-              :disabled="loading"
-            >
-              Lisa
-            </button>
-
-            <button
-              v-else
-              class="btn btn-success"
-              @click="onUpdate"
-              :disabled="loading"
-            >
-              Salvesta
-            </button>
-          </div>
-
           <div class="col-md-6">
             <input
               class="form-control"
               v-model="form.StartTime"
-              placeholder="StartTime (YYYY-MM-DDTHH:mm)"
+              placeholder="StartTime (YYYY-MM-DDTHH:mm:ssZ)"
             />
           </div>
 
@@ -228,10 +215,29 @@ export default {
             />
           </div>
 
-          <div v-if="editing" class="col-12 d-grid">
-            <button class="btn btn-outline-danger" @click="cancelEdit">
-              Cancel edit
+          <div class="col-12 d-grid">
+            <button
+              v-if="!editing"
+              class="btn btn-primary"
+              @click="onCreate"
+              :disabled="loading"
+            >
+              Lisa
             </button>
+
+            <div v-else class="d-grid gap-2">
+              <button
+                class="btn btn-success"
+                @click="onUpdate"
+                :disabled="loading"
+              >
+                Salvesta
+              </button>
+
+              <button class="btn btn-outline-danger" @click="cancelEdit">
+                Cancel edit
+              </button>
+            </div>
           </div>
         </div>
       </div>

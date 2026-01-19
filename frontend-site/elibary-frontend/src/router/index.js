@@ -8,23 +8,15 @@ const routes = [
     component: HomeView,
   },
   {
-    path: "/about",
-    name: "about",
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
-  },
-  {
     path: "/books",
     name: "books",
     component: () => import("../views/BooksView.vue"),
   },
-
   {
-  path: "/events",
-  name: "events",
-  component: () => import("../views/EventsView.vue"),
-},
-
+    path: "/events",
+    name: "events",
+    component: () => import("../views/EventsView.vue"),
+  },
 ];
 
 const router = createRouter({
