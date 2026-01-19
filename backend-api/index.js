@@ -23,6 +23,8 @@ app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 app.use(express.json());
 
 require("./routes/bsRoutes")(app)
+require("./routes/eventsRoutes")(app);
+
 
 app.listen(port, async () =>{
     if (process.env.SYNC === 'true') {await sync();}
