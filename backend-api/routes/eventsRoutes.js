@@ -1,7 +1,10 @@
 const EventsController = require("../controllers/EventsController");
 
 module.exports = (app) => {
-  app.route("/events").get(EventsController.getAll).post(EventsController.create);
+  app
+    .route("/events")
+    .get(EventsController.getAll)
+    .post(EventsController.create);
 
   app
     .route("/events/:EventID")

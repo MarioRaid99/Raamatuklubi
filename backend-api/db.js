@@ -17,6 +17,8 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.books = require("./models/Book")(sequelize, DataTypes);
+db.events = require("./models/Event")(sequelize, Sequelize.DataTypes);
+
 
 const connect = async () => {
   await sequelize.authenticate();

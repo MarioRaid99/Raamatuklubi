@@ -1,4 +1,6 @@
 const { db } = require("../db");
+const UUID = require("uuid");
+
 const Events = db.events;
 
 exports.getAll = async (req, res) => {
@@ -38,11 +40,12 @@ exports.create = async (req, res) => {
     }
 
     const created = await Events.create({
+      EventID: UUID.v7(),
       Title,
-      Description: Description ?? null,
+      Description: Description || null,
       StartTime,
-      EndTime: EndTime ?? null,
-      Location: Location ?? null,
+      EndTime: EndTime || null,
+      Location: Location || null,
     });
 
     return res.status(201).json(created);
@@ -56,6 +59,7 @@ exports.create = async (req, res) => {
 exports.deleteById = async (req, res) => {
   try {
     const { EventID } = req.params;
+
     const deleted = await Events.destroy({ where: { EventID } });
 
     if (!deleted) return res.status(404).json({ error: "Event not found" });
@@ -70,8 +74,8 @@ exports.deleteById = async (req, res) => {
 exports.updateById = async (req, res) => {
   try {
     const { EventID } = req.params;
-    const event = await Events.findByPk(EventID);
 
+    const event = await Events.findByPk(EventID);
     if (!event) return res.status(404).json({ error: "Event not found" });
 
     const allowed = ["Title", "Description", "StartTime", "EndTime", "Location"];
