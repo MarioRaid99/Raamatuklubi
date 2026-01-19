@@ -1,9 +1,13 @@
 <script>
-import EventsTable from "../components/EventsTable.vue";
-import { getEvents, createEvent, deleteEvent } from "../services/eventsApi";
+import {
+  getEvents,
+  createEvent,
+  deleteEvent,
+  updateEvent,
+} from "@/services/eventsApi";
 
 export default {
-  components: { EventsTable },
+  name: "EventsView",
 
   data() {
     return {
@@ -18,6 +22,8 @@ export default {
         EndTime: "",
         Location: "",
       },
+
+      editing: null,
     };
   },
 
@@ -40,21 +46,27 @@ export default {
 
     async onCreate() {
       this.error = "";
-      try {
-        if (!this.form.Title || !this.form.StartTime) {
-          this.error = "Täida vähemalt Title ja StartTime.";
-          return;
-        }
 
+      if (!this.form.Title || !this.form.StartTime) {
+        this.error = "Title ja StartTime on kohustuslikud.";
+        return;
+      }
+
+      try {
         await createEvent({
           Title: this.form.Title,
-          Description: this.form.Description || null,
+          Description: this.form.Description,
           StartTime: this.form.StartTime,
           EndTime: this.form.EndTime || null,
-          Location: this.form.Location || null,
+          Location: this.form.Location,
         });
 
-        this.form = { Title: "", Description: "", StartTime: "", EndTime: "", Location: "" };
+        this.form.Title = "";
+        this.form.Description = "";
+        this.form.StartTime = "";
+        this.form.EndTime = "";
+        this.form.Location = "";
+
         await this.refresh();
       } catch (e) {
         this.error = e?.message || String(e);
@@ -62,16 +74,69 @@ export default {
     },
 
     async onDelete(item) {
-      const ok = confirm(`Kustutan event'i: "${item.Title}"?`);
+      const ok = confirm(`Kustutan eventi: "${item.Title}"?`);
       if (!ok) return;
 
       this.error = "";
       try {
         await deleteEvent(item.EventID);
-        this.allEvents = this.allEvents.filter((x) => x.EventID !== item.EventID);
+        this.allEvents = this.allEvents.filter(
+          (x) => x.EventID !== item.EventID
+        );
       } catch (e) {
         this.error = e?.message || String(e);
       }
+    },
+
+    startEdit(item) {
+      this.editing = item;
+      this.form = {
+        Title: item.Title || "",
+        Description: item.Description || "",
+        StartTime: item.StartTime || "",
+        EndTime: item.EndTime || "",
+        Location: item.Location || "",
+      };
+    },
+
+    async onUpdate() {
+      if (!this.editing) return;
+
+      this.error = "";
+      try {
+        await updateEvent(this.editing.EventID, {
+          Title: this.form.Title,
+          Description: this.form.Description,
+          StartTime: this.form.StartTime,
+          EndTime: this.form.EndTime || null,
+          Location: this.form.Location,
+        });
+
+        this.editing = null;
+
+        this.form = {
+          Title: "",
+          Description: "",
+          StartTime: "",
+          EndTime: "",
+          Location: "",
+        };
+
+        await this.refresh();
+      } catch (e) {
+        this.error = e?.message || String(e);
+      }
+    },
+
+    cancelEdit() {
+      this.editing = null;
+      this.form = {
+        Title: "",
+        Description: "",
+        StartTime: "",
+        EndTime: "",
+        Location: "",
+      };
     },
   },
 };
@@ -81,39 +146,92 @@ export default {
   <main class="container py-4">
     <div class="d-flex align-items-center justify-content-between mb-3">
       <h2 class="m-0">Events</h2>
-      <button class="btn btn-outline-secondary" @click="refresh" :disabled="loading">
+
+      <button
+        class="btn btn-outline-secondary"
+        @click="refresh"
+        :disabled="loading"
+      >
         Refresh
       </button>
     </div>
 
-    <div v-if="error" class="alert alert-danger">{{ error }}</div>
+    <div v-if="error" class="alert alert-danger">
+      {{ error }}
+    </div>
 
     <div class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title">Lisa uus event</h5>
+        <h5 class="card-title">
+          {{ editing ? "Muuda event" : "Lisa uus event" }}
+        </h5>
 
         <div class="row g-2">
-          <div class="col-md-4">
-            <input class="form-control" v-model="form.Title" placeholder="Title" />
+          <div class="col-md-6">
+            <input
+              class="form-control"
+              v-model="form.Title"
+              placeholder="Title"
+            />
           </div>
+
           <div class="col-md-4">
-            <input class="form-control" v-model="form.Location" placeholder="Location" />
+            <input
+              class="form-control"
+              v-model="form.Location"
+              placeholder="Location"
+            />
           </div>
-          <div class="col-md-4 d-grid">
-            <button class="btn btn-primary" @click="onCreate" :disabled="loading">
+
+          <div class="col-md-2 d-grid">
+            <button
+              v-if="!editing"
+              class="btn btn-primary"
+              @click="onCreate"
+              :disabled="loading"
+            >
               Lisa
+            </button>
+
+            <button
+              v-else
+              class="btn btn-success"
+              @click="onUpdate"
+              :disabled="loading"
+            >
+              Salvesta
             </button>
           </div>
 
           <div class="col-md-6">
-            <input class="form-control" v-model="form.StartTime" placeholder="StartTime (YYYY-MM-DDTHH:mm)" />
+            <input
+              class="form-control"
+              v-model="form.StartTime"
+              placeholder="StartTime (YYYY-MM-DDTHH:mm)"
+            />
           </div>
+
           <div class="col-md-6">
-            <input class="form-control" v-model="form.EndTime" placeholder="EndTime (optional)" />
+            <input
+              class="form-control"
+              v-model="form.EndTime"
+              placeholder="EndTime (optional)"
+            />
           </div>
 
           <div class="col-12">
-            <textarea class="form-control" v-model="form.Description" rows="2" placeholder="Description"></textarea>
+            <textarea
+              class="form-control"
+              v-model="form.Description"
+              rows="2"
+              placeholder="Description"
+            />
+          </div>
+
+          <div v-if="editing" class="col-12 d-grid">
+            <button class="btn btn-outline-danger" @click="cancelEdit">
+              Cancel edit
+            </button>
           </div>
         </div>
       </div>
@@ -121,6 +239,28 @@ export default {
 
     <div v-if="loading" class="text-muted">Laen evente...</div>
 
-    <EventsTable :items="allEvents" @delete="onDelete" />
+    <ul v-else class="list-group">
+      <li
+        v-for="e in allEvents"
+        :key="e.EventID"
+        class="list-group-item d-flex justify-content-between align-items-center"
+      >
+        <div class="text-start">
+          <div class="fw-bold">{{ e.Title }}</div>
+          <div class="text-muted small">
+            {{ e.StartTime }} — {{ e.Location }}
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-sm btn-outline-primary" @click="startEdit(e)">
+            Edit
+          </button>
+          <button class="btn btn-sm btn-outline-danger" @click="onDelete(e)">
+            Delete
+          </button>
+        </div>
+      </li>
+    </ul>
   </main>
 </template>

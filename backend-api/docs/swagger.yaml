@@ -133,7 +133,8 @@ paths:
           description: Book not found
           schema:
             $ref: "#/definitions/Error"
-              /events:
+
+  /events:
     get:
       tags:
         - Events
@@ -167,7 +168,6 @@ paths:
           description: Invalid input
           schema:
             $ref: "#/definitions/Error"
-
 
   /events/{EventID}:
     get:
@@ -262,7 +262,6 @@ paths:
           schema:
             $ref: "#/definitions/Error"
 
-
 definitions:
   Book:
     type: object
@@ -325,14 +324,7 @@ definitions:
       Language: "ET"
       UserScore: 4
 
-  Error:
-    type: object
-    properties:
-      error:
-        type: string
-    example:
-      error: "Error message"
-        Event:
+  Event:
     type: object
     properties:
       EventID:
@@ -362,7 +354,6 @@ definitions:
         type: string
         format: date-time
 
-
   NewEvent:
     type: object
     required:
@@ -388,7 +379,6 @@ definitions:
       EndTime: "2025-05-10T20:00:00"
       Location: "Tartu"
 
-
   UpdateEvent:
     type: object
     properties:
@@ -405,3 +395,10 @@ definitions:
       Location:
         type: string
 
+  Error:
+    type: object
+    properties:
+      error:
+        type: string
+    example:
+      error: "Error message"
