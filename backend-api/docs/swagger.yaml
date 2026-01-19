@@ -133,6 +133,135 @@ paths:
           description: Book not found
           schema:
             $ref: "#/definitions/Error"
+              /events:
+    get:
+      tags:
+        - Events
+      summary: Get all Events
+      description: Return all Events that are registered in API
+      responses:
+        "200":
+          description: Returns a list of Events
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Event"
+
+    post:
+      tags:
+        - Events
+      summary: Create a new Event
+      description: Create a new Event instance
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/NewEvent"
+      responses:
+        "201":
+          description: Event successfully created
+          schema:
+            $ref: "#/definitions/Event"
+        "400":
+          description: Invalid input
+          schema:
+            $ref: "#/definitions/Error"
+
+
+  /events/{EventID}:
+    get:
+      tags:
+        - Events
+      summary: Get Event by ID
+      description: Return Event details by EventID
+      parameters:
+        - name: EventID
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Event found
+          schema:
+            $ref: "#/definitions/Event"
+        "404":
+          description: Event not found
+          schema:
+            $ref: "#/definitions/Error"
+
+    patch:
+      tags:
+        - Events
+      summary: Update Event (partial)
+      description: Update one or more fields of an Event
+      parameters:
+        - name: EventID
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateEvent"
+      responses:
+        "200":
+          description: Event updated
+          schema:
+            $ref: "#/definitions/Event"
+        "400":
+          description: Invalid update data
+          schema:
+            $ref: "#/definitions/Error"
+        "404":
+          description: Event not found
+          schema:
+            $ref: "#/definitions/Error"
+
+    put:
+      tags:
+        - Events
+      summary: Update Event (full)
+      description: Replace Event with new data
+      parameters:
+        - name: EventID
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/NewEvent"
+      responses:
+        "200":
+          description: Event replaced
+          schema:
+            $ref: "#/definitions/Event"
+        "404":
+          description: Event not found
+          schema:
+            $ref: "#/definitions/Error"
+
+    delete:
+      tags:
+        - Events
+      summary: Delete Event
+      description: Permanently delete an Event
+      parameters:
+        - name: EventID
+          in: path
+          required: true
+          type: string
+      responses:
+        "204":
+          description: No content
+        "404":
+          description: Event not found
+          schema:
+            $ref: "#/definitions/Error"
+
 
 definitions:
   Book:
@@ -203,3 +332,76 @@ definitions:
         type: string
     example:
       error: "Error message"
+        Event:
+    type: object
+    properties:
+      EventID:
+        type: string
+        example: "019adf62-aaaa-718c-ab35-8eb72e154bbb"
+      Title:
+        type: string
+        example: "Raamatuklubi kohtumine"
+      Description:
+        type: string
+        example: "Arutame ulmekirjandust"
+      StartTime:
+        type: string
+        format: date-time
+        example: "2025-05-10T18:00:00"
+      EndTime:
+        type: string
+        format: date-time
+        example: "2025-05-10T20:00:00"
+      Location:
+        type: string
+        example: "Tallinn, Keskraamatukogu"
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+
+
+  NewEvent:
+    type: object
+    required:
+      - Title
+      - StartTime
+    properties:
+      Title:
+        type: string
+      Description:
+        type: string
+      StartTime:
+        type: string
+        format: date-time
+      EndTime:
+        type: string
+        format: date-time
+      Location:
+        type: string
+    example:
+      Title: "Kohtumine"
+      Description: "Arutelu"
+      StartTime: "2025-05-10T18:00:00"
+      EndTime: "2025-05-10T20:00:00"
+      Location: "Tartu"
+
+
+  UpdateEvent:
+    type: object
+    properties:
+      Title:
+        type: string
+      Description:
+        type: string
+      StartTime:
+        type: string
+        format: date-time
+      EndTime:
+        type: string
+        format: date-time
+      Location:
+        type: string
+
