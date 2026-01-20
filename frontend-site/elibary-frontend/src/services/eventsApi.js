@@ -1,47 +1,65 @@
-const API_URL = "http://localhost:8080";
+const API_URL = process.env.VUE_APP_API_URL || "http://localhost:8080";
+
+function authHeader() {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export async function getEvents() {
   const res = await fetch(`${API_URL}/events`);
-  if (!res.ok) throw new Error(`GET /events failed: ${res.status}`);
+  if (!res.ok) throw new Error("Failed to load events");
   return await res.json();
 }
 
 export async function createEvent(payload) {
   const res = await fetch(`${API_URL}/events`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeader(),
+    },
     body: JSON.stringify(payload),
   });
 
+  const data = await res.json().catch(() => ({}));
+
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`POST /events failed: ${res.status} ${text}`);
+    throw new Error(data.error || "Create event failed");
   }
 
-  return await res.json();
+  return data;
 }
 
-export async function deleteEvent(eventId) {
-  const res = await fetch(`${API_URL}/events/${eventId}`, { method: "DELETE" });
+export async function updateEvent(id, payload) {
+  const res = await fetch(`${API_URL}/events/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeader(),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(data.error || "Update failed");
+  }
+
+  return data;
+}
+
+export async function deleteEvent(id) {
+  const res = await fetch(`${API_URL}/events/${id}`, {
+    method: "DELETE",
+    headers: {
+      ...authHeader(),
+    },
+  });
 
   if (!res.ok && res.status !== 204) {
-    throw new Error(`DELETE /events/${eventId} failed: ${res.status}`);
+    throw new Error("Delete failed");
   }
 
   return true;
-}
-
-export async function updateEvent(eventId, payload) {
-  const res = await fetch(`${API_URL}/events/${eventId}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`PATCH /events/${eventId} failed: ${res.status} ${text}`);
-  }
-
-  return await res.json();
 }

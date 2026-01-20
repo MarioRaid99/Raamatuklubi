@@ -1,33 +1,34 @@
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define(
-    "User",
+  const Users = sequelize.define(
+    "users",
     {
       UserID: {
         type: DataTypes.UUID,
         primaryKey: true,
         allowNull: false,
       },
+
       Email: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
       },
+
       PasswordHash: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      First_name: {
+
+      FirstName: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      Last_name: {
+
+      LastName: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      Phone_number: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
+
       Role: {
         type: DataTypes.ENUM("USER", "ADMIN"),
         allowNull: false,
@@ -35,9 +36,9 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
-      tableName: "Users",
+      freezeTableName: true,
     }
   );
 
-  return User;
+  return Users;
 };

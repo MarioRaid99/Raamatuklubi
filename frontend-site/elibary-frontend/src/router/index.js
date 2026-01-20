@@ -1,7 +1,12 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
+
 import HomeView from "../views/HomeView.vue";
+import AboutView from "../views/AboutView.vue";
+import BooksView from "../views/BooksView.vue";
+import EventsView from "../views/EventsView.vue";
 import AuthView from "../views/AuthView.vue";
 
+import { useAuth } from "@/services/authStore";
 
 const routes = [
   {
@@ -10,25 +15,42 @@ const routes = [
     component: HomeView,
   },
   {
+    path: "/about",
+    name: "about",
+    component: AboutView,
+  },
+  {
     path: "/books",
     name: "books",
-    component: () => import("../views/BooksView.vue"),
+    component: BooksView,
   },
   {
     path: "/events",
     name: "events",
-    component: () => import("../views/EventsView.vue"),
+    component: EventsView,
+    meta: { requiresAdmin: true },
   },
   {
-  path: "/auth",
-  name: "auth",
-  component: AuthView,
-},
+    path: "/auth",
+    name: "auth",
+    component: AuthView,
+  },
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const auth = useAuth();
+
+  if (to.meta?.requiresAdmin) {
+    if (!auth.isLoggedIn.value) return next("/auth");
+    if (!auth.isAdmin.value) return next("/auth");
+  }
+
+  return next();
 });
 
 export default router;

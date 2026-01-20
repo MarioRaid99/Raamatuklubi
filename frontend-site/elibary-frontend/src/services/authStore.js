@@ -1,33 +1,38 @@
-const KEY = "rk_token";
-const USER_KEY = "rk_user";
+// src/services/authStore.js
+import { reactive, computed } from "vue";
 
-export function getToken() {
-  return localStorage.getItem(KEY) || "";
+const state = reactive({
+  token: localStorage.getItem("token") || "",
+  user: JSON.parse(localStorage.getItem("user") || "null"),
+});
+
+const isLoggedIn = computed(() => !!state.token);
+const role = computed(() => state.user?.Role || "GUEST");
+const isAdmin = computed(() => role.value === "ADMIN");
+
+function setAuth(token, user) {
+  state.token = token;
+  state.user = user;
+
+  localStorage.setItem("token", token || "");
+  localStorage.setItem("user", JSON.stringify(user || null));
 }
 
-export function setAuth(token, user) {
-  localStorage.setItem(KEY, token);
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+function logout() {
+  state.token = "";
+  state.user = null;
+
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
 }
 
-export function clearAuth() {
-  localStorage.removeItem(KEY);
-  localStorage.removeItem(USER_KEY);
-}
-
-export function getUser() {
-  try {
-    return JSON.parse(localStorage.getItem(USER_KEY) || "null");
-  } catch {
-    return null;
-  }
-}
-
-export function isAdmin() {
-  const u = getUser();
-  return u?.Role === "ADMIN";
-}
-
-export function isLoggedIn() {
-  return Boolean(getToken());
+export function useAuth() {
+  return {
+    state,
+    isLoggedIn,
+    role,
+    isAdmin,
+    setAuth,
+    logout,
+  };
 }

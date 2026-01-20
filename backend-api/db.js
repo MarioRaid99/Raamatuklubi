@@ -15,9 +15,10 @@ const sequelize = new Sequelize(
 const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
-
 db.books = require("./models/Book")(sequelize, DataTypes);
 db.events = require("./models/Event")(sequelize, Sequelize.DataTypes);
+db.users = require("./models/Users")(sequelize, Sequelize.DataTypes);
+
 
 
 const connect = async () => {
