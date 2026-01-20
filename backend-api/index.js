@@ -22,8 +22,12 @@ app.use(cors());
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 app.use(express.json());
 
-require("./routes/bsRoutes")(app)
+require("./routes/bsRoutes")(app);
 require("./routes/eventsRoutes")(app);
+require("./routes/authRoutes")(app);
+require("./routes/usersRoutes")(app);
+require("./routes/eventsRoutes")(app);
+
 
 
 app.listen(port, async () =>{
