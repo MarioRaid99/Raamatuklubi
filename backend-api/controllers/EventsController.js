@@ -71,6 +71,7 @@ exports.deleteById = async (req, res) => {
   }
 };
 
+// PATCH (partial update)
 exports.updateById = async (req, res) => {
   try {
     const { EventID } = req.params;
@@ -86,7 +87,9 @@ exports.updateById = async (req, res) => {
     }
 
     if (Object.keys(updates).length === 0) {
-      return res.status(400).json({ error: "No valid fields to update", allowed });
+      return res
+        .status(400)
+        .json({ error: "No valid fields to update", allowed });
     }
 
     await event.update(updates);
@@ -95,5 +98,38 @@ exports.updateById = async (req, res) => {
     return res
       .status(400)
       .json({ error: "Failed to update event", details: err.message });
+  }
+};
+
+// PUT (full replace)
+exports.replaceById = async (req, res) => {
+  try {
+    const { EventID } = req.params;
+
+    const event = await Events.findByPk(EventID);
+    if (!event) return res.status(404).json({ error: "Event not found" });
+
+    const { Title, Description, StartTime, EndTime, Location } = req.body;
+
+    if (!Title || !StartTime) {
+      return res.status(400).json({
+        error: "Missing required fields",
+        required: ["Title", "StartTime"],
+      });
+    }
+
+    await event.update({
+      Title,
+      Description: Description || null,
+      StartTime,
+      EndTime: EndTime || null,
+      Location: Location || null,
+    });
+
+    return res.status(200).json(event);
+  } catch (err) {
+    return res
+      .status(400)
+      .json({ error: "Failed to replace event", details: err.message });
   }
 };
