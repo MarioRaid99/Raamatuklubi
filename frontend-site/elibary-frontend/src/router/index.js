@@ -5,7 +5,7 @@ import AboutView from "../views/AboutView.vue";
 import BooksView from "../views/BooksView.vue";
 import EventsView from "../views/EventsView.vue";
 import AuthView from "../views/AuthView.vue";
-
+import MyBooksView from "../views/MyBooksView.vue";
 import { useAuth } from "@/services/authStore";
 
 const routes = [
@@ -34,6 +34,13 @@ const routes = [
     name: "auth",
     component: AuthView,
   },
+  {
+  path: "/my-books",
+  name: "my-books",
+  component: MyBooksView,
+  meta: { requiresAuth: true },
+},
+
 ];
 
 const router = createRouter({
@@ -43,6 +50,10 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const auth = useAuth();
+
+  if (to.meta?.requiresAuth) {
+    if (!auth.isLoggedIn.value) return next("/auth");
+  }
 
   if (to.meta?.requiresAdmin) {
     if (!auth.isLoggedIn.value) return next("/auth");
