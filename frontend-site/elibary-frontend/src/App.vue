@@ -63,6 +63,16 @@ const authLabel = computed(() => (isLoggedIn.value ? "Konto" : "Login / Register
                 Books
               </RouterLink>
             </li>
+            <li class="nav-item">
+  <RouterLink
+    to="/my-books"
+    class="nav-link"
+    :class="{ active: isActive('/my-books') }"
+  >
+    My Books
+  </RouterLink>
+</li>
+
 
             <li class="nav-item">
               <RouterLink
