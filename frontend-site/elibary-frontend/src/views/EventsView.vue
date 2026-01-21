@@ -1,5 +1,6 @@
 <script>
 import { getEvents, createEvent, deleteEvent, updateEvent } from "@/services/eventsApi";
+import { useAuth } from "@/services/authStore";
 
 export default {
   name: "EventsView",
@@ -23,16 +24,23 @@ export default {
   },
 
   computed: {
-    isEditing() {
-      return !!this.editing;
-    },
-    canSubmit() {
-      return Boolean(this.form.Title?.trim() && this.form.StartTime?.trim());
-    },
-    submitText() {
-      return this.isEditing ? "Salvesta muudatused" : "Lisa event";
-    },
+  auth() {
+    return useAuth();
   },
+  isAdmin() {
+    return this.auth.isAdmin.value;
+  },
+  isEditing() {
+    return !!this.editing;
+  },
+  canSubmit() {
+    return Boolean(this.form.Title?.trim() && this.form.StartTime?.trim());
+  },
+  submitText() {
+    return this.isEditing ? "Salvesta muudatused" : "Lisa event";
+  },
+},
+
 
   async created() {
     await this.refresh();
@@ -147,8 +155,14 @@ export default {
               <span v-if="isEditing" class="badge text-bg-warning">Muuda</span>
             </div>
             <p class="page-subtitle mb-0 mt-1">
-              Lisa uusi üritusi või halda olemasolevaid (muuda/kustuta).
-            </p>
+  <span v-if="isAdmin">
+    Lisa uusi üritusi või halda olemasolevaid (muuda/kustuta).
+  </span>
+  <span v-else>
+    Ürituste kalender (lugemiseks).
+  </span>
+</p>
+
           </div>
 
           <div class="d-flex align-items-center gap-2">
@@ -170,7 +184,7 @@ export default {
       </div>
 
       <!-- Form -->
-      <div class="card card-elevated mb-4">
+      <div v-if="isAdmin" class="card card-elevated mb-4">
         <div class="card-body p-3 p-md-4">
           <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
             <h2 class="h6 mb-0">
@@ -300,14 +314,15 @@ export default {
                   </div>
                 </div>
 
-                <div class="btn-group">
-                  <button class="btn btn-sm btn-outline-primary" @click="startEdit(e)" :disabled="loading">
-                    Muuda
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger" @click="onDelete(e)" :disabled="loading">
-                    Kustuta
-                  </button>
-                </div>
+                <div v-if="isAdmin" class="btn-group">
+  <button class="btn btn-sm btn-outline-primary" @click="startEdit(e)" :disabled="loading">
+    Muuda
+  </button>
+  <button class="btn btn-sm btn-outline-danger" @click="onDelete(e)" :disabled="loading">
+    Kustuta
+  </button>
+</div>
+
               </div>
             </li>
           </ul>

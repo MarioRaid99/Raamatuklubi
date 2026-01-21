@@ -28,7 +28,6 @@ const routes = [
     path: "/events",
     name: "events",
     component: EventsView,
-    meta: { requiresAdmin: true },
   },
   {
     path: "/auth",
