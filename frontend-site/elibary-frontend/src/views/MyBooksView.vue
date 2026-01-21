@@ -361,9 +361,17 @@ export default {
                 </div>
 
                 <div class="btn-group">
+                  <router-link
+                    class="btn btn-sm btn-outline-secondary"
+                    :to="`/books/${item.BookID}`"
+                  >
+                    Uuri lähemalt
+                  </router-link>
+
                   <button class="btn btn-sm btn-outline-primary" @click="startEdit(item)" :disabled="loading">
                     Muuda
                   </button>
+
                   <button class="btn btn-sm btn-outline-danger" @click="onDelete(item)" :disabled="loading">
                     Eemalda
                   </button>

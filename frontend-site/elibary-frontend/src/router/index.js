@@ -48,6 +48,12 @@ const routes = [
   component: MyBooksView,
   meta: { requiresAuth: true },
 },
+{
+  path: "/books/:id",
+  name: "book-details",
+  component: () => import("../views/BookView.vue"),
+  meta: { requiresAuth: true },
+},
 
 
 ];

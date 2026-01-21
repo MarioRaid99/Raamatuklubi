@@ -1,6 +1,7 @@
 <script>
 import BooksTable from "../components/BooksTable.vue";
 import { getBooks, createBook, deleteBook, updateBook } from "../services/booksApi";
+import { uploadImage } from "../services/uploadApi";
 
 export default {
   name: "BooksView",
@@ -18,7 +19,8 @@ export default {
         Pages: 1,
         ReleaseYear: new Date().getFullYear(),
         Language: "ET",
-        UserScore: null,
+
+        ImageUrl: "",
       },
 
       editing: null,
@@ -48,9 +50,6 @@ export default {
   },
 
   methods: {
-    /* ======================
-       A) READ
-    ====================== */
     async refresh() {
       this.error = "";
       this.loading = true;
@@ -63,9 +62,24 @@ export default {
       }
     },
 
-    /* ======================
-       B) CREATE / UPDATE
-    ====================== */
+    async onPickImage(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      this.error = "";
+      this.loading = true;
+
+      try {
+        const url = await uploadImage(file);
+        this.form.ImageUrl = url;
+      } catch (err) {
+        this.error = err?.message || String(err);
+      } finally {
+        this.loading = false;
+        e.target.value = "";
+      }
+    },
+
     async submitForm() {
       this.error = "";
 
@@ -80,7 +94,8 @@ export default {
         Pages: Number(this.form.Pages),
         ReleaseYear: Number(this.form.ReleaseYear),
         Language: this.form.Language.trim(),
-        UserScore: this.form.UserScore,
+
+        ImageUrl: this.form.ImageUrl?.trim() ? this.form.ImageUrl.trim() : null,
       };
 
       this.loading = true;
@@ -100,9 +115,6 @@ export default {
       }
     },
 
-    /* ======================
-       C) DELETE
-    ====================== */
     async onDelete(item) {
       const ok = confirm(`Kustutan raamatu: "${item.Name}"?`);
       if (!ok) return;
@@ -119,9 +131,6 @@ export default {
       }
     },
 
-    /* ======================
-       D) EDIT MODE
-    ====================== */
     startEdit(item) {
       this.editing = item;
       this.form = {
@@ -130,10 +139,10 @@ export default {
         Pages: item.Pages,
         ReleaseYear: item.ReleaseYear,
         Language: item.Language,
-        UserScore: item.UserScore,
+
+        ImageUrl: item.ImageUrl ?? "",
       };
 
-      // kerge UX: kerime vormi juurde
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
 
@@ -149,7 +158,7 @@ export default {
         Pages: 1,
         ReleaseYear: new Date().getFullYear(),
         Language: "ET",
-        UserScore: null,
+        ImageUrl: "",
       };
     },
   },
@@ -169,13 +178,13 @@ export default {
             </div>
 
             <p class="page-subtitle mb-0 mt-1">
-              Halda raamatuid: lisa, muuda ja kustuta. Tabelist saad valida “Muuda”.
+              Halda raamatuid: lisa, muuda ja kustuta. Pildi saad lisada vormist (upload).
             </p>
           </div>
 
           <div class="d-flex align-items-center gap-2">
             <button class="btn btn-outline-secondary" @click="refresh" :disabled="loading">
-              <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              <span v-if="loading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
               Värskenda
             </button>
 
@@ -236,9 +245,24 @@ export default {
                 />
               </div>
 
+              <!-- Pilt (upload) -->
+              <div class="col-12 col-lg-6">
+                <label class="form-label">ImageUrl</label>
+                <input class="form-control" v-model="form.ImageUrl" placeholder="http://... või tekib uploadist" />
+              </div>
+
+              <div class="col-12" v-if="form.ImageUrl">
+                <small class="text-muted d-block mb-2">Preview</small>
+                <img
+                  :src="form.ImageUrl"
+                  alt="cover"
+                  style="width: 140px; height: 180px; object-fit: cover; border-radius: 12px"
+                />
+              </div>
+
               <div class="col-12 d-grid d-md-flex gap-2 mt-2">
                 <button class="btn btn-primary px-4" type="submit" :disabled="loading || !canSubmit">
-                  <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <span v-if="loading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                   {{ submitText }}
                 </button>
 
@@ -246,14 +270,14 @@ export default {
                   Tühista
                 </button>
 
-                <button v-if="!isEditing && (form.Name || form.Description)" class="btn btn-outline-secondary" type="button" @click="resetForm" :disabled="loading">
+                <button v-if="!isEditing && (form.Name || form.Description || form.ImageUrl)" class="btn btn-outline-secondary" type="button" @click="resetForm" :disabled="loading">
                   Puhasta vorm
                 </button>
               </div>
 
               <div class="col-12">
                 <small class="text-muted">
-                  Kohustuslik: Name, Description, Language. Pages ja ReleaseYear peavad olema positiivsed.
+                  Kohustuslik: Name, Description, Language. Pages ja ReleaseYear peavad olema positiivsed. Pilt on valikuline.
                 </small>
               </div>
             </div>
@@ -261,7 +285,7 @@ export default {
         </div>
       </div>
 
-      <!-- Table / List -->
+      <!-- List -->
       <div class="card card-elevated">
         <div class="card-body p-0">
           <div class="px-3 px-md-4 pt-3 pt-md-4 pb-2 border-bottom d-flex align-items-center justify-content-between">
@@ -273,20 +297,12 @@ export default {
             </div>
 
             <div v-if="loading" class="text-muted small d-flex align-items-center gap-2">
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
               Laen...
             </div>
           </div>
 
-          <div class="p-3 p-md-4" v-if="!loading && allBooks.length === 0">
-            <div class="empty-state">
-              <div class="fw-semibold mb-1">Raamatuid pole</div>
-              <div class="text-muted">Lisa esimene raamat ülal oleva vormi kaudu.</div>
-            </div>
-          </div>
-
-          <div v-else class="p-2 p-md-3">
-            <!-- BooksTable jääb teie enda komponendiks -->
+          <div class="p-0">
             <BooksTable :items="allBooks" @delete="onDelete" @edit="startEdit" />
           </div>
         </div>
@@ -316,12 +332,5 @@ export default {
   border-radius: 14px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
   overflow: hidden;
-}
-
-.empty-state {
-  border: 1px dashed rgba(0, 0, 0, 0.15);
-  border-radius: 12px;
-  padding: 18px;
-  background: rgba(255, 255, 255, 0.7);
 }
 </style>

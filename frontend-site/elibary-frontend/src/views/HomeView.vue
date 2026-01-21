@@ -11,7 +11,7 @@
             </p>
           </div>
 
-          <div class="header-meta small text-muted">
+          <div class="header-meta small text-muted" v-if="hasSearched">
             Tulemusi: <strong class="text-body">{{ allBooks.length }}</strong>
           </div>
         </div>
@@ -46,22 +46,12 @@
 
               <div class="col-12 col-md-6 col-lg-3">
                 <label class="form-label">Keel</label>
-                <input
-                  class="form-control"
-                  v-model.trim="language"
-                  placeholder="ET / EN"
-                />
+                <input class="form-control" v-model.trim="language" placeholder="ET / EN" />
               </div>
 
               <div class="col-12 col-md-6 col-lg-3">
                 <label class="form-label">Ilmumisaasta</label>
-                <input
-                  class="form-control"
-                  v-model.number="year"
-                  placeholder="nt 2005"
-                  type="number"
-                  min="0"
-                />
+                <input class="form-control" v-model.number="year" placeholder="nt 2005" type="number" min="0" />
               </div>
 
               <div class="col-12 d-grid d-md-flex gap-2 mt-2">
@@ -71,7 +61,7 @@
                 </button>
 
                 <button
-                  v-if="hasFilters"
+                  v-if="hasFilters || hasSearched"
                   class="btn btn-outline-secondary"
                   type="button"
                   @click="resetFilters"
@@ -79,6 +69,10 @@
                 >
                   Puhasta
                 </button>
+              </div>
+
+              <div class="col-12">
+                <small class="text-muted">Tulemusi ei kuvata enne, kui vajutad “Otsi”.</small>
               </div>
             </div>
           </form>
@@ -90,7 +84,7 @@
       </div>
 
       <!-- Results -->
-      <section class="results">
+      <section class="results" v-if="hasSearched">
         <div v-if="loading" class="card card-elevated">
           <div class="card-body p-4">
             <div class="d-flex align-items-center gap-3">
@@ -115,32 +109,52 @@
             <div v-if="allBooks.length === 0" class="p-4">
               <div class="empty-state">
                 <div class="fw-semibold mb-1">Tulemusi ei leitud</div>
-                <div class="text-muted">
-                  Proovi muuta otsingusõna või eemaldada mõned filtrid.
-                </div>
+                <div class="text-muted">Proovi muuta otsingusõna või eemaldada mõned filtrid.</div>
               </div>
             </div>
 
             <ul v-else class="list-group list-group-flush">
               <li class="list-group-item px-3 px-md-4 py-3" v-for="b in allBooks" :key="b.BookID">
-                <div class="d-flex align-items-start justify-content-between gap-3">
-                  <div class="min-w-0">
-                    <div class="fw-semibold text-truncate">{{ b.Name }}</div>
-                    <div class="text-muted small text-truncate">
-                      ID: {{ b.BookID }}
+                <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                  <div class="d-flex gap-3">
+                    <div class="cover-wrap">
+                      <img
+                        v-if="coverSrc(b)"
+                        :src="coverSrc(b)"
+                        class="cover-img"
+                        alt="Kaas"
+                        @error="onCoverError(b.BookID)"
+                      />
+                      <div v-else class="cover-placeholder" aria-hidden="true">
+                        <div class="cover-initials">{{ initials(b.Name) }}</div>
+                      </div>
+                    </div>
+
+                    <div class="min-w-0">
+                      <div class="fw-semibold">{{ b.Name }}</div>
+
+                      <div class="text-muted small">
+                        <span v-if="b.Pages" class="me-2">{{ b.Pages }} lk</span>
+                        <span v-if="b.Language" class="me-2">{{ b.Language }}</span>
+                        <span v-if="b.ReleaseYear" class="me-2">{{ b.ReleaseYear }}</span>
+                      </div>
+
+                      <div v-if="b.Description" class="mt-1 text-muted small">
+                        {{ shortText(b.Description, 190) }}
+                      </div>
+                      <div v-else class="mt-1 text-muted small">Kirjeldus puudub.</div>
                     </div>
                   </div>
 
-                  <!-- Jätsin siia koha tulevase "Detail" nupu jaoks,
-                       kui teil on olemas /books/:id route -->
-                  <!--
-                  <router-link class="btn btn-sm btn-outline-primary" :to="`/books/${b.BookID}`">
-                    Vaata
-                  </router-link>
-                  -->
+                  <div class="btn-group">
+                    <router-link class="btn btn-sm btn-outline-secondary" :to="`/books/${b.BookID}`">
+                      Uuri lähemalt
+                    </router-link>
+                  </div>
                 </div>
               </li>
             </ul>
+
           </div>
         </div>
       </section>
@@ -150,6 +164,7 @@
 
 <script>
 import { getBooks } from "@/services/booksApi";
+import { getMyBooks } from "@/services/userBooksApi";
 
 export default {
   name: "HomeView",
@@ -160,10 +175,15 @@ export default {
       loading: false,
       error: "",
 
-      // filter state
       search: "",
       language: "",
       year: null,
+
+      hasSearched: false,
+
+      myImageByBookId: {},
+
+      coverFailed: {},
     };
   },
 
@@ -171,38 +191,89 @@ export default {
     hasFilters() {
       return Boolean(
         (this.search && this.search.length > 0) ||
-        (this.language && this.language.length > 0) ||
-        (this.year !== null && this.year !== "" && this.year !== undefined)
+          (this.language && this.language.length > 0) ||
+          (this.year !== null && this.year !== "" && this.year !== undefined)
       );
     },
-  },
-
-  async created() {
-    await this.refresh();
   },
 
   methods: {
     async refresh() {
       this.loading = true;
       this.error = "";
+      this.hasSearched = true;
+
+      this.coverFailed = {};
+
       try {
         this.allBooks = await getBooks({
           q: this.search,
           language: this.language,
           year: this.year || undefined,
         });
+
+        await this.loadMyImagesSafely();
       } catch (e) {
         this.error = e?.message || String(e);
+        this.allBooks = [];
       } finally {
         this.loading = false;
       }
     },
 
-    async resetFilters() {
+    async loadMyImagesSafely() {
+      try {
+        const mine = await getMyBooks();
+        const map = {};
+        for (const x of mine || []) {
+          if (x?.BookID && x?.ImageUrl) map[x.BookID] = x.ImageUrl;
+        }
+        this.myImageByBookId = map;
+      } catch {
+        // ignore if not logged in or endpoint blocked
+        this.myImageByBookId = {};
+      }
+    },
+
+    resetFilters() {
       this.search = "";
       this.language = "";
       this.year = null;
-      await this.refresh();
+
+      this.hasSearched = false;
+      this.allBooks = [];
+      this.error = "";
+
+      this.myImageByBookId = {};
+      this.coverFailed = {};
+    },
+
+    coverSrc(b) {
+      // If image failed once, never try again this render cycle
+      if (this.coverFailed[b.BookID]) return "";
+
+      // Priority: MyBooks uploaded image -> book.ImageUrl (if your backend returns it) -> none
+      return this.myImageByBookId[b.BookID] || b.ImageUrl || "";
+    },
+
+    onCoverError(bookId) {
+      this.$set ? this.$set(this.coverFailed, bookId, true) : (this.coverFailed[bookId] = true);
+    },
+
+    initials(name) {
+      const n = (name || "").trim();
+      if (!n) return "BK";
+      const parts = n.split(/\s+/).filter(Boolean);
+      const first = parts[0]?.[0] || "B";
+      const second = parts.length > 1 ? parts[1]?.[0] : (parts[0]?.[1] || "K");
+      return (first + second).toUpperCase();
+    },
+
+    shortText(txt, max = 190) {
+      if (!txt) return "";
+      const clean = String(txt).trim();
+      if (clean.length <= max) return clean;
+      return clean.slice(0, max).trimEnd() + "…";
     },
   },
 };
@@ -236,5 +307,48 @@ export default {
   border-radius: 12px;
   padding: 18px;
   background: rgba(255, 255, 255, 0.7);
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+/* Cover */
+.cover-wrap {
+  width: 70px;
+  height: 90px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.7);
+  flex: 0 0 auto;
+}
+
+.cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.18), rgba(25, 135, 84, 0.12));
+}
+
+.cover-initials {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 </style>
