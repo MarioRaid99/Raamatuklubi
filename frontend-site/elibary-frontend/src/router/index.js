@@ -7,7 +7,7 @@ import EventsView from "../views/EventsView.vue";
 import AuthView from "../views/AuthView.vue";
 import MyBooksView from "../views/MyBooksView.vue";
 import { useAuth } from "@/services/authStore";
-import MyBooksView from "../views/MyBooksView.vue";
+
 
 
 const routes = [
