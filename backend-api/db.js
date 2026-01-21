@@ -18,6 +18,25 @@ db.sequelize = sequelize;
 db.books = require("./models/Book")(sequelize, DataTypes);
 db.events = require("./models/Event")(sequelize, Sequelize.DataTypes);
 db.users = require("./models/Users")(sequelize, Sequelize.DataTypes);
+db.userBooks = require("./models/UserBooks")(sequelize, Sequelize.DataTypes);
+
+// Many-to-many
+db.users.belongsToMany(db.books, {
+  through: db.userBooks,
+  foreignKey: "UserID",
+  otherKey: "BookID",
+});
+
+db.books.belongsToMany(db.users, {
+  through: db.userBooks,
+  foreignKey: "BookID",
+  otherKey: "UserID",
+});
+
+// (optional, mugavam include jaoks)
+db.userBooks.belongsTo(db.books, { foreignKey: "BookID" });
+db.userBooks.belongsTo(db.users, { foreignKey: "UserID" });
+
 
 
 
