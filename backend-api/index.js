@@ -28,6 +28,7 @@ require("./routes/authRoutes")(app);
 require("./routes/usersRoutes")(app);
 require("./routes/eventsRoutes")(app);
 require("./routes/userBooksRoutes")(app);
+require("./routes/uploadRoutes")(app);
 
 app.listen(port, async () =>{
     if (process.env.SYNC === 'true') {await sync();}
