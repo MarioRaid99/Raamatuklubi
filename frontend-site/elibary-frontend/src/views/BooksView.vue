@@ -1,13 +1,9 @@
 <script>
 import BooksTable from "../components/BooksTable.vue";
-import {
-  getBooks,
-  createBook,
-  deleteBook,
-  updateBook,
-} from "../services/booksApi";
+import { getBooks, createBook, deleteBook, updateBook } from "../services/booksApi";
 
 export default {
+  name: "BooksView",
   components: { BooksTable },
 
   data() {
@@ -25,8 +21,26 @@ export default {
         UserScore: null,
       },
 
-      editing: null, // sisaldab Book objekti kui editime
+      editing: null,
     };
+  },
+
+  computed: {
+    isEditing() {
+      return !!this.editing;
+    },
+    submitText() {
+      return this.isEditing ? "Salvesta muudatused" : "Lisa raamat";
+    },
+    canSubmit() {
+      return Boolean(
+        this.form.Name?.trim() &&
+          this.form.Description?.trim() &&
+          this.form.Language?.trim() &&
+          Number(this.form.Pages) > 0 &&
+          Number(this.form.ReleaseYear) > 0
+      );
+    },
   },
 
   async created() {
@@ -55,26 +69,25 @@ export default {
     async submitForm() {
       this.error = "";
 
-      if (!this.form.Name || !this.form.Description || !this.form.Language) {
-        this.error = "Täida vähemalt Name, Description ja Language.";
+      if (!this.canSubmit) {
+        this.error = "Täida vähemalt Name, Description ja Language (Pages/ReleaseYear peavad olema > 0).";
         return;
       }
 
       const payload = {
-        Name: this.form.Name,
-        Description: this.form.Description,
+        Name: this.form.Name.trim(),
+        Description: this.form.Description.trim(),
         Pages: Number(this.form.Pages),
         ReleaseYear: Number(this.form.ReleaseYear),
-        Language: this.form.Language,
+        Language: this.form.Language.trim(),
         UserScore: this.form.UserScore,
       };
 
+      this.loading = true;
       try {
         if (this.editing) {
-          // UPDATE
           await updateBook(this.editing.BookID, payload);
         } else {
-          // CREATE
           await createBook(payload);
         }
 
@@ -82,6 +95,8 @@ export default {
         this.resetForm();
       } catch (e) {
         this.error = e?.message || String(e);
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -93,11 +108,14 @@ export default {
       if (!ok) return;
 
       this.error = "";
+      this.loading = true;
       try {
         await deleteBook(item.BookID);
         this.allBooks = this.allBooks.filter((b) => b.BookID !== item.BookID);
       } catch (e) {
         this.error = e?.message || String(e);
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -114,6 +132,9 @@ export default {
         Language: item.Language,
         UserScore: item.UserScore,
       };
+
+      // kerge UX: kerime vormi juurde
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
 
     cancelEdit() {
@@ -136,96 +157,171 @@ export default {
 </script>
 
 <template>
-  <main class="container py-4">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-      <h2 class="m-0">Books</h2>
-      <button
-        class="btn btn-outline-secondary"
-        @click="refresh"
-        :disabled="loading"
-      >
-        Refresh
-      </button>
-    </div>
+  <div class="books-page">
+    <div class="container py-4 py-lg-5">
+      <!-- Header -->
+      <header class="page-header mb-4">
+        <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+          <div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <h1 class="page-title mb-0">Raamatud</h1>
+              <span v-if="isEditing" class="badge text-bg-warning">Muuda</span>
+            </div>
 
-    <div v-if="error" class="alert alert-danger">{{ error }}</div>
-
-    <!-- FORM -->
-    <div class="card mb-4">
-      <div class="card-body">
-        <h5 class="card-title">
-          {{ editing ? "Muuda raamatut" : "Lisa uus raamat" }}
-        </h5>
-
-        <div class="row g-2">
-          <div class="col-md-4">
-            <input
-              class="form-control"
-              v-model="form.Name"
-              placeholder="Name"
-            />
+            <p class="page-subtitle mb-0 mt-1">
+              Halda raamatuid: lisa, muuda ja kustuta. Tabelist saad valida “Muuda”.
+            </p>
           </div>
 
-          <div class="col-md-2">
-            <input
-              class="form-control"
-              type="number"
-              v-model="form.Pages"
-              placeholder="Pages"
-            />
-          </div>
-
-          <div class="col-md-2">
-            <input
-              class="form-control"
-              type="number"
-              v-model="form.ReleaseYear"
-              placeholder="ReleaseYear"
-            />
-          </div>
-
-          <div class="col-md-2">
-            <input
-              class="form-control"
-              v-model="form.Language"
-              placeholder="Language"
-            />
-          </div>
-
-          <div class="col-md-2 d-grid">
-            <button
-              class="btn btn-primary"
-              @click="submitForm"
-              :disabled="loading"
-            >
-              {{ editing ? "Salvesta" : "Lisa" }}
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary" @click="refresh" :disabled="loading">
+              <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Värskenda
             </button>
-          </div>
 
-          <div class="col-md-2 d-grid" v-if="editing">
-            <button class="btn btn-outline-secondary" @click="cancelEdit">
-              Tühista
+            <button v-if="isEditing" class="btn btn-outline-secondary" @click="cancelEdit" :disabled="loading">
+              Tühista muutmine
             </button>
-          </div>
-
-          <div class="col-12">
-            <textarea
-              class="form-control"
-              v-model="form.Description"
-              rows="2"
-              placeholder="Description"
-            />
           </div>
         </div>
+      </header>
 
-        <div v-if="editing" class="text-muted mt-2">
-          Muudan raamatut ID-ga: {{ editing.BookID }}
+      <!-- Error -->
+      <div v-if="error" class="alert alert-danger">
+        {{ error }}
+      </div>
+
+      <!-- Form Card -->
+      <div class="card card-elevated mb-4">
+        <div class="card-body p-3 p-md-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <h2 class="h6 mb-0">
+              {{ isEditing ? "Muuda raamatut" : "Lisa uus raamat" }}
+            </h2>
+
+            <small v-if="isEditing" class="text-muted">
+              ID: <span class="font-monospace">{{ editing.BookID }}</span>
+            </small>
+          </div>
+
+          <form @submit.prevent="submitForm">
+            <div class="row g-3">
+              <div class="col-12 col-lg-5">
+                <label class="form-label">Nimi</label>
+                <input class="form-control" v-model="form.Name" placeholder="Raamatu nimi" />
+              </div>
+
+              <div class="col-12 col-sm-6 col-lg-2">
+                <label class="form-label">Leheküljed</label>
+                <input class="form-control" type="number" v-model.number="form.Pages" min="1" placeholder="nt 250" />
+              </div>
+
+              <div class="col-12 col-sm-6 col-lg-2">
+                <label class="form-label">Aasta</label>
+                <input class="form-control" type="number" v-model.number="form.ReleaseYear" min="0" placeholder="nt 2015" />
+              </div>
+
+              <div class="col-12 col-sm-6 col-lg-3">
+                <label class="form-label">Keel</label>
+                <input class="form-control" v-model="form.Language" placeholder="ET / EN" />
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Kirjeldus</label>
+                <textarea
+                  class="form-control"
+                  v-model="form.Description"
+                  rows="3"
+                  placeholder="Lühikirjeldus, märksõnad, kokkuvõte..."
+                />
+              </div>
+
+              <div class="col-12 d-grid d-md-flex gap-2 mt-2">
+                <button class="btn btn-primary px-4" type="submit" :disabled="loading || !canSubmit">
+                  <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  {{ submitText }}
+                </button>
+
+                <button v-if="isEditing" class="btn btn-outline-secondary" type="button" @click="cancelEdit" :disabled="loading">
+                  Tühista
+                </button>
+
+                <button v-if="!isEditing && (form.Name || form.Description)" class="btn btn-outline-secondary" type="button" @click="resetForm" :disabled="loading">
+                  Puhasta vorm
+                </button>
+              </div>
+
+              <div class="col-12">
+                <small class="text-muted">
+                  Kohustuslik: Name, Description, Language. Pages ja ReleaseYear peavad olema positiivsed.
+                </small>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Table / List -->
+      <div class="card card-elevated">
+        <div class="card-body p-0">
+          <div class="px-3 px-md-4 pt-3 pt-md-4 pb-2 border-bottom d-flex align-items-center justify-content-between">
+            <div>
+              <h2 class="h6 mb-1">Raamatute nimekiri</h2>
+              <div class="text-muted small">
+                Kokku: <strong class="text-body">{{ allBooks.length }}</strong>
+              </div>
+            </div>
+
+            <div v-if="loading" class="text-muted small d-flex align-items-center gap-2">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Laen...
+            </div>
+          </div>
+
+          <div class="p-3 p-md-4" v-if="!loading && allBooks.length === 0">
+            <div class="empty-state">
+              <div class="fw-semibold mb-1">Raamatuid pole</div>
+              <div class="text-muted">Lisa esimene raamat ülal oleva vormi kaudu.</div>
+            </div>
+          </div>
+
+          <div v-else class="p-2 p-md-3">
+            <!-- BooksTable jääb teie enda komponendiks -->
+            <BooksTable :items="allBooks" @delete="onDelete" @edit="startEdit" />
+          </div>
         </div>
       </div>
     </div>
-
-    <div v-if="loading" class="text-muted">Laen raamatuid...</div>
-
-    <BooksTable :items="allBooks" @delete="onDelete" @edit="startEdit" />
-  </main>
+  </div>
 </template>
+
+<style scoped>
+.books-page {
+  background: linear-gradient(180deg, rgba(13, 110, 253, 0.06), transparent 240px);
+  min-height: 100%;
+}
+
+.page-title {
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  max-width: 70ch;
+}
+
+.card-elevated {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.empty-state {
+  border: 1px dashed rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.7);
+}
+</style>
