@@ -33,3 +33,7 @@ app.listen(port, async () =>{
     if (process.env.SYNC === 'true') {await sync();}
     console.log(`API on aadressil: http://${host}:${port}`)
 })
+
+const path = require("path");
+
+app.use("/uploads", require("express").static(path.join(__dirname, "uploads")));
