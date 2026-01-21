@@ -1,86 +1,132 @@
 <template>
-  <div class="container py-4" style="max-width: 520px">
-    <h2 class="mb-3">Auth</h2>
+  <div class="auth-page">
+    <div class="container py-4 py-lg-5">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-6 col-xl-5">
+          <!-- Header -->
+          <header class="mb-3 text-center">
+            <h1 class="page-title mb-1">Konto</h1>
+            <p class="page-subtitle mb-0">
+              Logi sisse või loo uus kasutaja. Admin suunatakse Events lehele.
+            </p>
+          </header>
 
-    <div class="btn-group mb-3 w-100">
-      <button
-        class="btn btn-outline-primary"
-        :class="{ active: mode === 'login' }"
-        @click="mode = 'login'"
-      >
-        Login
-      </button>
-      <button
-        class="btn btn-outline-primary"
-        :class="{ active: mode === 'register' }"
-        @click="mode = 'register'"
-      >
-        Register
-      </button>
-    </div>
+          <!-- Card -->
+          <div class="card card-elevated">
+            <div class="card-body p-3 p-md-4">
+              <!-- Mode switch -->
+              <div class="btn-group w-100 mb-3" role="group" aria-label="Auth mode">
+                <button
+                  class="btn"
+                  :class="mode === 'login' ? 'btn-primary' : 'btn-outline-primary'"
+                  type="button"
+                  @click="mode = 'login'"
+                  :disabled="loading"
+                >
+                  Login
+                </button>
+                <button
+                  class="btn"
+                  :class="mode === 'register' ? 'btn-primary' : 'btn-outline-primary'"
+                  type="button"
+                  @click="mode = 'register'"
+                  :disabled="loading"
+                >
+                  Register
+                </button>
+              </div>
 
-    <div class="card">
-      <div class="card-body">
-        <div class="mb-2">
-          <input
-            class="form-control"
-            v-model="form.Email"
-            placeholder="Email"
-          />
-        </div>
+              <form @submit.prevent="submit">
+                <div class="mb-3">
+                  <label class="form-label">Email</label>
+                  <input
+                    class="form-control"
+                    v-model.trim="form.Email"
+                    placeholder="nimi@domeen.ee"
+                    type="email"
+                    autocomplete="email"
+                  />
+                </div>
 
-        <div class="mb-2">
-          <input
-            class="form-control"
-            v-model="form.Password"
-            placeholder="Password"
-            type="password"
-          />
-        </div>
+                <div class="mb-3">
+                  <label class="form-label">Parool</label>
+                  <input
+                    class="form-control"
+                    v-model="form.Password"
+                    placeholder="Sisesta parool"
+                    type="password"
+                    autocomplete="current-password"
+                  />
+                </div>
 
-        <div class="mb-2" v-if="mode === 'register'">
-          <input
-            class="form-control"
-            v-model="form.FirstName"
-            placeholder="First name"
-          />
-        </div>
+                <div v-if="mode === 'register'" class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Eesnimi</label>
+                    <input
+                      class="form-control"
+                      v-model.trim="form.FirstName"
+                      placeholder="Eesnimi"
+                      autocomplete="given-name"
+                    />
+                  </div>
 
-        <div class="mb-2" v-if="mode === 'register'">
-          <input
-            class="form-control"
-            v-model="form.LastName"
-            placeholder="Last name"
-          />
-        </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Perenimi</label>
+                    <input
+                      class="form-control"
+                      v-model.trim="form.LastName"
+                      placeholder="Perenimi"
+                      autocomplete="family-name"
+                    />
+                  </div>
+                </div>
 
-        <button
-          class="btn btn-primary w-100"
-          :disabled="loading"
-          @click="submit"
-        >
-          {{ loading ? "..." : mode.toUpperCase() }}
-        </button>
+                <button class="btn btn-primary w-100 mt-3" type="submit" :disabled="loading">
+                  <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  {{ mode === "login" ? "Logi sisse" : "Loo konto" }}
+                </button>
+              </form>
 
-        <div v-if="error" class="alert alert-danger mt-3 mb-0">
-          {{ error }}
-        </div>
+              <div v-if="error" class="alert alert-danger mt-3 mb-0">
+                {{ error }}
+              </div>
 
-        <div v-if="isLoggedIn" class="alert alert-success mt-3 mb-0">
-          Logged in as: <strong>{{ state.user?.Email }}</strong>
-          (role: <strong>{{ role }}</strong>)
-          <div class="mt-2">
-            <button class="btn btn-sm btn-outline-dark" @click="doLogout">
-              Logout
-            </button>
+              <div v-if="isLoggedIn" class="mt-3">
+                <div class="alert alert-success mb-0">
+                  <div class="fw-semibold mb-1">Sisselogimine õnnestus</div>
+                  <div class="small">
+                    Kasutaja: <strong>{{ state.user?.Email }}</strong>
+                    <span class="text-muted"> | roll: </span>
+                    <strong>{{ role }}</strong>
+                  </div>
+
+                  <div class="mt-2 d-flex gap-2 flex-wrap">
+                    <button class="btn btn-sm btn-outline-dark" type="button" @click="doLogout">
+                      Logi välja
+                    </button>
+                    <button
+                      v-if="role === 'ADMIN'"
+                      class="btn btn-sm btn-outline-primary"
+                      type="button"
+                      @click="$router.push('/events')"
+                    >
+                      Mine Events
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" @click="$router.push('/')">
+                      Ava avaleht
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <p class="text-muted small mt-3 mb-0 text-center">
+            Admin näeb Events lehte. Tavakasutaja suunatakse avalehele.
+          </p>
         </div>
       </div>
     </div>
-
-    <p class="text-muted mt-3 mb-0">
-      Admin näeb Events lehte. Tavakasutaja suunatakse siia tagasi.
-    </p>
   </div>
 </template>
 
@@ -124,6 +170,7 @@ export default {
     async submit() {
       this.loading = true;
       this.error = "";
+
       try {
         let result;
 
@@ -141,10 +188,8 @@ export default {
           });
         }
 
-        // eeldame backend tagastab: { token, user }
         this.auth.setAuth(result.token, result.user);
 
-        // kui admin, mine events lehele
         if (result.user?.Role === "ADMIN") {
           this.$router.push("/events");
         } else {
@@ -164,3 +209,28 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.auth-page {
+  background: radial-gradient(1200px 600px at 20% 0%, rgba(13, 110, 253, 0.12), transparent 60%),
+    radial-gradient(900px 500px at 100% 10%, rgba(25, 135, 84, 0.10), transparent 55%),
+    linear-gradient(180deg, rgba(13, 110, 253, 0.06), transparent 240px);
+  min-height: 100%;
+}
+
+.page-title {
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+  color: #6c757d;
+}
+
+.card-elevated {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+</style>
