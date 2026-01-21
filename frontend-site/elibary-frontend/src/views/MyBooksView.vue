@@ -20,7 +20,7 @@ export default {
         ImageUrl: "",
       },
 
-      editing: null, // hoiab userBook rida (või BookID järgi)
+      editing: null, // hoiab userBook rida
     };
   },
 
@@ -33,6 +33,23 @@ export default {
     },
     canSubmit() {
       return Boolean(this.form.BookID);
+    },
+
+    // 1) Lookup map: BookID -> Book detail (Name, Description, Pages, jne)
+    catalogById() {
+      const map = {};
+      for (const b of this.catalog) {
+        map[b.BookID] = b;
+      }
+      return map;
+    },
+
+    // 2) Rikastatud list UI jaoks: lisa iga myBook kirje juurde book detail
+    myBooksUi() {
+      return (this.myBooks || []).map((ub) => ({
+        ...ub,
+        Book: this.catalogById[ub.BookID] || null,
+      }));
     },
   },
 
@@ -92,7 +109,6 @@ export default {
 
       try {
         if (this.editing) {
-          // editimisel BookID ei muuda, uuendame score+image
           await updateMyBook(this.editing.BookID, {
             UserScore: payload.UserScore,
             ImageUrl: payload.ImageUrl,
@@ -111,6 +127,7 @@ export default {
     },
 
     async onDelete(item) {
+      // item on nüüd myBooksUi element, seega item.Book võib olla olemas
       const bookName = item.Book?.Name || item.BookID;
       const ok = confirm(`Eemaldan minu raamatutest: "${bookName}"?`);
       if (!ok) return;
@@ -213,11 +230,7 @@ export default {
             <div class="row g-3">
               <div class="col-12 col-lg-6">
                 <label class="form-label">Raamat (kataloogist)</label>
-                <select
-                  class="form-select"
-                  v-model="form.BookID"
-                  :disabled="loading || isEditing"
-                >
+                <select class="form-select" v-model="form.BookID" :disabled="loading || isEditing">
                   <option value="" disabled>Vali raamat...</option>
                   <option v-for="b in catalog" :key="b.BookID" :value="b.BookID">
                     {{ b.Name }} ({{ b.Language }}, {{ b.ReleaseYear }})
@@ -239,11 +252,6 @@ export default {
                   v-model.number="form.UserScore"
                   placeholder="nt 4.5"
                 />
-              </div>
-
-              <div class="col-12 col-sm-6 col-lg-3">
-                <label class="form-label">Pilt (upload)</label>
-                <input class="form-control" type="file" accept="image/*" @change="onPickImage" />
               </div>
 
               <div class="col-12">
@@ -299,13 +307,11 @@ export default {
       <!-- List -->
       <div class="card card-elevated">
         <div class="card-body p-0">
-          <div
-            class="px-3 px-md-4 pt-3 pt-md-4 pb-2 border-bottom d-flex align-items-center justify-content-between"
-          >
+          <div class="px-3 px-md-4 pt-3 pt-md-4 pb-2 border-bottom d-flex align-items-center justify-content-between">
             <div>
               <h2 class="h6 mb-1">Minu raamatud</h2>
               <div class="text-muted small">
-                Kokku: <strong class="text-body">{{ myBooks.length }}</strong>
+                Kokku: <strong class="text-body">{{ myBooksUi.length }}</strong>
               </div>
             </div>
 
@@ -315,7 +321,7 @@ export default {
             </div>
           </div>
 
-          <div class="p-3 p-md-4" v-if="!loading && myBooks.length === 0">
+          <div class="p-3 p-md-4" v-if="!loading && myBooksUi.length === 0">
             <div class="empty-state">
               <div class="fw-semibold mb-1">Sul pole veel raamatuid</div>
               <div class="text-muted">Lisa esimene raamat ülal oleva vormi kaudu.</div>
@@ -323,7 +329,7 @@ export default {
           </div>
 
           <ul v-else class="list-group list-group-flush">
-            <li v-for="item in myBooks" :key="item.BookID" class="list-group-item px-3 px-md-4 py-3">
+            <li v-for="item in myBooksUi" :key="item.BookID" class="list-group-item px-3 px-md-4 py-3">
               <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
                 <div class="d-flex gap-3">
                   <img
@@ -335,13 +341,14 @@ export default {
 
                   <div class="min-w-0">
                     <div class="fw-semibold">
-                      {{ item.Book?.Name || item.BookID }}
+                      {{ item.Book?.Name || "Tundmatu raamat" }}
                     </div>
 
                     <div class="text-muted small">
+                      <span v-if="item.Book?.Pages" class="me-2">{{ item.Book.Pages }} lk</span>
                       <span v-if="item.Book?.Language" class="me-2">{{ item.Book.Language }}</span>
                       <span v-if="item.Book?.ReleaseYear" class="me-2">{{ item.Book.ReleaseYear }}</span>
-                      <span v-if="item.Book?.Pages" class="me-2">{{ item.Book.Pages }} lk</span>
+
                       <span v-if="item.UserScore !== null && item.UserScore !== undefined">
                         Sinu hinne: <strong class="text-body">{{ item.UserScore }}</strong>
                       </span>
@@ -364,6 +371,7 @@ export default {
               </div>
             </li>
           </ul>
+
         </div>
       </div>
     </div>
