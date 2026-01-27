@@ -1,7 +1,6 @@
 <template>
   <div class="home-page">
     <div class="container py-4 py-lg-5">
-      <!-- Header -->
       <header class="page-header mb-4">
         <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
           <div>
@@ -17,7 +16,6 @@
         </div>
       </header>
 
-      <!-- Search / Filters -->
       <div class="card card-elevated mb-4">
         <div class="card-body p-3 p-md-4">
           <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
@@ -83,7 +81,6 @@
         </div>
       </div>
 
-      <!-- Results -->
       <section class="results" v-if="hasSearched">
         <div v-if="loading" class="card card-elevated">
           <div class="card-body p-4">
@@ -230,7 +227,6 @@ export default {
         }
         this.myImageByBookId = map;
       } catch {
-        // ignore if not logged in or endpoint blocked
         this.myImageByBookId = {};
       }
     },
@@ -249,10 +245,8 @@ export default {
     },
 
     coverSrc(b) {
-      // If image failed once, never try again this render cycle
       if (this.coverFailed[b.BookID]) return "";
 
-      // Priority: MyBooks uploaded image -> book.ImageUrl (if your backend returns it) -> none
       return this.myImageByBookId[b.BookID] || b.ImageUrl || "";
     },
 

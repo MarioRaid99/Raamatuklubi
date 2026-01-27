@@ -6,9 +6,6 @@ import { useAuth } from "@/services/authStore";
 const route = useRoute();
 const { isLoggedIn, isAdmin, logout } = useAuth();
 
-/**
- * Active link helper: works with router-link custom rendering.
- */
 const isActive = (path) => {
   if (path === "/") return route.path === "/";
   return route.path.startsWith(path);
@@ -19,16 +16,13 @@ const authLabel = computed(() => (isLoggedIn.value ? "Konto" : "Login / Register
 
 <template>
   <div class="app-shell">
-    <!-- Top Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
       <div class="container py-2">
-        <!-- Brand -->
         <RouterLink class="navbar-brand d-flex align-items-center gap-2" to="/">
           <span class="brand-mark" aria-hidden="true"></span>
           <span class="fw-semibold">Raamatuklubi</span>
         </RouterLink>
 
-        <!-- Mobile toggle -->
         <button
           class="navbar-toggler"
           type="button"
@@ -41,7 +35,6 @@ const authLabel = computed(() => (isLoggedIn.value ? "Konto" : "Login / Register
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Links -->
         <div class="collapse navbar-collapse" id="mainNav">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
@@ -85,7 +78,6 @@ const authLabel = computed(() => (isLoggedIn.value ? "Konto" : "Login / Register
             </li>
           </ul>
 
-          <!-- Right side -->
           <div class="d-flex align-items-center gap-2">
             <span v-if="isAdmin.value" class="badge text-bg-dark badge-admin">
               ADMIN
@@ -113,12 +105,10 @@ const authLabel = computed(() => (isLoggedIn.value ? "Konto" : "Login / Register
       </div>
     </nav>
 
-    <!-- Page content -->
     <main class="app-content">
       <RouterView />
     </main>
 
-    <!-- Footer -->
     <footer class="border-top bg-white">
       <div class="container py-3 small text-muted d-flex justify-content-between flex-wrap gap-2">
         <span>© {{ new Date().getFullYear() }} Raamatuklubi</span>
@@ -139,7 +129,6 @@ const authLabel = computed(() => (isLoggedIn.value ? "Konto" : "Login / Register
   flex: 1 1 auto;
 }
 
-/* Brand */
 .brand-mark {
   width: 12px;
   height: 12px;
@@ -148,12 +137,10 @@ const authLabel = computed(() => (isLoggedIn.value ? "Konto" : "Login / Register
   box-shadow: 0 6px 18px rgba(13, 110, 253, 0.25);
 }
 
-/* Active link */
 .nav-link.active {
   font-weight: 600;
 }
 
-/* Admin badge */
 .badge-admin {
   letter-spacing: 0.06em;
 }

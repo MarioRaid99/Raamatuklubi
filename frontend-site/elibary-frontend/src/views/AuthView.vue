@@ -3,7 +3,6 @@
     <div class="container py-4 py-lg-5">
       <div class="row justify-content-center">
         <div class="col-12 col-md-10 col-lg-6 col-xl-5">
-          <!-- Header -->
           <header class="mb-3 text-center">
             <h1 class="page-title mb-1">Konto</h1>
             <p class="page-subtitle mb-0">
@@ -11,10 +10,8 @@
             </p>
           </header>
 
-          <!-- Card -->
           <div class="card card-elevated">
             <div class="card-body p-3 p-md-4">
-              <!-- Mode switch -->
               <div class="btn-group w-100 mb-3" role="group" aria-label="Auth mode">
                 <button
                   class="btn"

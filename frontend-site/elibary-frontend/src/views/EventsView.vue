@@ -146,7 +146,6 @@ export default {
 <template>
   <div class="events-page">
     <div class="container py-4 py-lg-5">
-      <!-- Header -->
       <header class="page-header mb-4">
         <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
           <div>
@@ -178,12 +177,10 @@ export default {
         </div>
       </header>
 
-      <!-- Error -->
       <div v-if="error" class="alert alert-danger">
         {{ error }}
       </div>
 
-      <!-- Form -->
       <div v-if="isAdmin" class="card card-elevated mb-4">
         <div class="card-body p-3 p-md-4">
           <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
@@ -266,7 +263,6 @@ export default {
         </div>
       </div>
 
-      <!-- List -->
       <div class="card card-elevated">
         <div class="card-body p-0">
           <div class="px-3 px-md-4 pt-3 pt-md-4 pb-2 border-bottom d-flex align-items-center justify-content-between">

@@ -78,7 +78,6 @@ export default {
         const mine = await getMyBooks();
         this.myEntry = (mine || []).find((x) => x.BookID === this.bookId) || null;
       } catch {
-        // not logged in or not allowed
         this.myEntry = null;
       }
     },
@@ -104,7 +103,6 @@ export default {
         await this.loadMyEntrySafely();
         this.coverUrl = this.myEntry?.ImageUrl || this.book?.ImageUrl || "";
       } catch (e) {
-        // Kui backend tagastab 401/403, anna kasutajale selge sõnum
         const msg = e?.response?.status === 401 || e?.response?.status === 403
           ? "Palun logi sisse, et lisada raamat enda nimekirja."
           : (e?.message || String(e));
@@ -168,7 +166,6 @@ export default {
               Tagasi
             </button>
 
-            <!-- ✅ Add to My Books button in header area -->
             <button
               v-if="!isInMyBooks"
               class="btn btn-primary"
@@ -189,7 +186,6 @@ export default {
               Juba minu raamatutes
             </button>
 
-            <!-- optional remove -->
             <button
               v-if="isInMyBooks"
               class="btn btn-outline-danger"
@@ -243,7 +239,6 @@ export default {
                 <div class="fw-semibold">{{ myEntry.UserScore }}</div>
               </div>
 
-              <!-- secondary add button (optional) -->
               <div class="mt-3 d-grid gap-2 d-lg-none">
                 <button
                   v-if="!isInMyBooks"
